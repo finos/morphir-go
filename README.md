@@ -2,44 +2,201 @@
 
 # Morphir Go
 
-Short blurb about what your project does.
+A Go implementation of the Morphir tooling ecosystem. Morphir is a technology-agnostic intermediate representation (IR) for business logic and data models, enabling code generation, documentation, and analysis across multiple target platforms.
+
+This project provides a CLI application built with [Cobra](https://github.com/spf13/cobra) and [Bubbletea](https://github.com/charmbracelet/bubbletea), along with library modules for working with Morphir IR.
+
+## Prerequisites
+
+- **Go 1.25.5** or later ([download](https://golang.org/dl/))
+- **just** - A command runner for build orchestration ([install](https://github.com/casey/just))
 
 ## Installation
 
-OS X & Linux:
+### Building from Source
 
 ```sh
-npm install my-crazy-module --save
+# Clone the repository
+git clone https://github.com/finos/morphir-go.git
+cd morphir-go
+
+# Build the CLI application
+just build
+
+# The binary will be in bin/morphir
 ```
 
-Windows:
+### Installing to System
 
 ```sh
-edit autoexec.bat
+# Build and install to $GOPATH/bin or $GOBIN
+just install
 ```
 
-## Usage example
+## Usage
 
-A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially screenshots / videos ([LiceCap](https://www.cockos.com/licecap/) is great for this kind of thing).
-
-_For more examples and usage, please refer to the [Wiki][wiki]._
-
-## Development setup
-
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+### Running the CLI
 
 ```sh
-make install
-npm test
+# Launch the interactive TUI
+morphir
+
+# Get help
+morphir help
+
+# Get help for a specific command
+morphir help workspace
+
+# Initialize a workspace (stubbed - coming soon)
+morphir workspace init [path]
 ```
+
+## Module Structure
+
+This is a Go monorepo with multiple modules:
+
+- **`cmd/morphir/`** - CLI application (Cobra + Bubbletea)
+- **`pkg/models/`** - Morphir IR model types and data structures
+- **`pkg/tooling/`** - Utilities and tools for working with Morphir IR
+- **`pkg/sdk/`** - SDK for building applications that work with Morphir IR
+- **`pkg/pipeline/`** - Processing pipelines for Morphir IR transformations
+
+Each package is a separate Go module, managed via `go.work` for seamless development.
+
+## Development Workflow
+
+### Build Orchestration with Just
+
+We use [`just`](https://github.com/casey/just) for build orchestration. Common commands:
+
+```sh
+# List all available commands
+just
+
+# Build the CLI application
+just build
+
+# Run tests across all modules
+just test
+
+# Format all Go code
+just fmt
+
+# Run linters (requires golangci-lint)
+just lint
+
+# Download dependencies for all modules
+just deps
+
+# Run go mod tidy for all modules
+just mod-tidy
+
+# Clean build artifacts
+just clean
+
+# Verify all modules build successfully
+just verify
+```
+
+### Local Development and Testing
+
+For local development, we recommend using `morphir-dev` to distinguish your development version from any installed `morphir` CLI:
+
+```sh
+# Build the development version
+just build-dev
+
+# The binary will be in bin/morphir-dev
+
+# Run the development version directly
+just run-dev
+
+# Or run it manually
+./bin/morphir-dev
+
+# Test specific commands
+./bin/morphir-dev help
+./bin/morphir-dev workspace init
+
+# Launch the TUI
+./bin/morphir-dev
+
+# Install morphir-dev to your system (makes it available in PATH)
+just install-dev
+
+# After installation, you can use morphir-dev from anywhere
+morphir-dev help
+```
+
+**Why use `morphir-dev`?**
+- Keeps your development version separate from any installed `morphir` CLI
+- Allows you to test changes without affecting your installed version
+- Makes it clear which version you're running during development
+- Enables side-by-side comparison with the installed version
+- Can be installed system-wide for easy access during development
+
+### Development Setup
+
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/finos/morphir-go.git
+   cd morphir-go
+   ```
+
+2. **Install dependencies**
+   ```sh
+   just deps
+   ```
+
+3. **Build the project**
+   ```sh
+   # For development, use build-dev
+   just build-dev
+   
+   # Or for standard build
+   just build
+   ```
+
+4. **Run tests**
+   ```sh
+   just test
+   ```
+
+5. **Test your changes**
+   ```sh
+   # Build and run the development version
+   just run-dev
+   
+   # Or test specific commands
+   ./bin/morphir-dev help
+   ```
+
+### Go Workspace
+
+This project uses Go workspaces (`go.work`) to manage the multi-module monorepo. The workspace file includes all modules, allowing seamless cross-module development without requiring local replacements.
+
+## Development Principles
+
+This project follows functional programming principles and practices. For detailed guidance on:
+
+- Functional programming patterns
+- Test-driven development (TDD)
+- Behavior-driven development (BDD)
+- Code organization principles
+- Morphir design principles
+
+See **[AGENTS.md](AGENTS.md)** for comprehensive development guidelines.
 
 ## Roadmap
 
-List the roadmap steps; alternatively link the Confluence Wiki page where the project roadmap is published.
-
-1. Item 1
-2. Item 2
-3. ....
+- [x] Initial monorepo structure
+- [x] CLI application with Cobra and Bubbletea
+- [x] Basic command structure (help, workspace)
+- [ ] Workspace initialization implementation
+- [ ] Morphir IR model support
+- [ ] Tooling utilities
+- [ ] SDK implementation
+- [ ] Pipeline processing
 
 ## Contributing
 For any questions, bugs or feature requests please open an [issue](https://github.com/finos/morphir-go/issues).

@@ -201,6 +201,34 @@ func runValidate(cmd *cobra.Command, args []string) error {
    - Add `--json` flag support to all non-interactive commands
    - Ensure JSON output is well-structured and consistent
 
+### Commit Authorship for AI Assistants
+
+**IMPORTANT: When AI assistants (like Claude) create commits, DO NOT include Claude as a co-author.**
+
+This project is part of the FINOS foundation and uses EasyCLA for Contributor License Agreement management. Adding AI assistants as co-authors breaks the CLA verification process.
+
+**Correct approach:**
+```bash
+git commit -m "feat: add new feature
+
+This implements the new feature as requested."
+```
+
+**INCORRECT approach (will break EasyCLA):**
+```bash
+git commit -m "feat: add new feature
+
+This implements the new feature as requested.
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+**For AI assistants generating commits:**
+- Only include the actual human contributor as the author
+- Do not add yourself as a co-author in the commit message
+- Do not add footer notes like "Generated with Claude Code"
+- Keep commit messages focused on the technical changes
+
 ### Example: Functional Pattern
 
 ```go

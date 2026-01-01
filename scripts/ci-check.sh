@@ -25,12 +25,17 @@ echo "Verifying all modules build..."
 
 # Run tests
 echo "Running tests..."
-go test ./...
+for dir in cmd/morphir pkg/models pkg/tooling pkg/sdk pkg/pipeline; do
+    if [ -d "$dir" ]; then
+        echo "Testing $dir..."
+        (cd "$dir" && go test ./...)
+    fi
+done
 
 # Lint check (if available)
 if command -v golangci-lint > /dev/null; then
     echo "Running linters..."
-    golangci-lint run ./...
+    golangci-lint run
     echo "✓ Linting passed"
 else
     echo "⚠ golangci-lint not found, skipping lint check"

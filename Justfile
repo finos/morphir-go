@@ -60,7 +60,12 @@ build-dev:
 # Run tests across all modules
 test:
     @echo "Running tests..."
-    go test ./...
+    @for dir in cmd/morphir pkg/models pkg/tooling pkg/sdk pkg/pipeline; do \
+        if [ -d "$$dir" ]; then \
+            echo "Testing $$dir..."; \
+            (cd "$$dir" && go test ./...); \
+        fi \
+    done
 
 # Format all Go code
 fmt:
@@ -71,7 +76,7 @@ fmt:
 lint:
     @echo "Running linters..."
     @if command -v golangci-lint > /dev/null; then \
-        golangci-lint run ./...; \
+        golangci-lint run; \
     else \
         echo "golangci-lint not found. Install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
     fi

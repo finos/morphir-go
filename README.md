@@ -10,6 +10,7 @@ This project provides a CLI application built with [Cobra](https://github.com/sp
 
 - **Go 1.25.5** or later ([download](https://golang.org/dl/))
 - **just** - A command runner for build orchestration ([install](https://github.com/casey/just))
+- **PowerShell** (Windows only) - For running build scripts on Windows ([install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell))
 
 ## Installation
 
@@ -96,6 +97,9 @@ just clean
 
 # Verify all modules build successfully
 just verify
+
+# Run CI checks (format, build, test, lint)
+just ci-check
 ```
 
 ### Local Development and Testing
@@ -174,6 +178,23 @@ morphir-dev help
 ### Go Workspace
 
 This project uses Go workspaces (`go.work`) to manage the multi-module monorepo. The workspace file includes all modules, allowing seamless cross-module development without requiring local replacements.
+
+### Scripts Directory
+
+The `scripts/` directory contains reusable scripts used in build, CI, and development workflows. These scripts are referenced from the `Justfile` and can also be used directly:
+
+- `scripts/mod-tidy.sh` / `scripts/mod-tidy.ps1` - Runs `go mod tidy` for all modules
+- `scripts/install-dev.sh` / `scripts/install-dev.ps1` - Installs `morphir-dev` to Go bin directory
+- `scripts/verify.sh` / `scripts/verify.ps1` - Verifies all modules build successfully
+- `scripts/ci-check.sh` / `scripts/ci-check.ps1` - Runs all CI checks (format, build, test, lint)
+
+**Cross-Platform Support:**
+- All scripts have both bash (`.sh`) and PowerShell (`.ps1`) versions
+- The `Justfile` automatically detects the platform and uses the appropriate script
+- On Windows, PowerShell scripts are used when PowerShell is available
+- On Unix-like systems (Linux, macOS), bash scripts are used
+
+Scripts are used in the `Justfile` for complex operations and can be invoked directly when needed.
 
 ## Development Principles
 

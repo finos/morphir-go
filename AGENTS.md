@@ -254,6 +254,41 @@ Each package is a separate Go module, managed via `go.work` for development.
 - Run `just fmt` to format code
 - Run `just lint` to run linters
 
+### Scripts Directory
+
+The `scripts/` directory contains reusable shell scripts used in build, CI, and development workflows. These scripts are referenced from the `Justfile` for longer task definitions and can also be used directly.
+
+**Available Scripts:**
+- `scripts/mod-tidy.sh` / `scripts/mod-tidy.ps1` - Runs `go mod tidy` for all modules in the monorepo
+- `scripts/install-dev.sh` / `scripts/install-dev.ps1` - Installs the `morphir-dev` binary to the Go bin directory
+- `scripts/verify.sh` / `scripts/verify.ps1` - Verifies all modules build successfully
+- `scripts/ci-check.sh` / `scripts/ci-check.ps1` - Runs all CI checks (format, build, test, lint)
+
+**Cross-Platform Support:**
+- All scripts have both bash (`.sh`) and PowerShell (`.ps1`) versions for cross-platform support
+- The `Justfile` uses `scripts/detect-os.sh` for proper OS detection (windows, linux, darwin)
+- OS detection is done via helper recipes (`_os`, `_bin-ext`, `_script-ext`, `_powershell`)
+- Windows: Uses PowerShell scripts (`.ps1`) and adds `.exe` extension to binaries
+- Unix-like (Linux, macOS): Uses bash scripts (`.sh`) and no extension for binaries
+- The Justfile automatically selects the correct scripts and binary extensions based on detected OS
+
+**Guidelines for Scripts:**
+- Scripts should be executable (`chmod +x` for `.sh` files)
+- Bash scripts: Use `#!/usr/bin/env bash` shebang and `set -e` to exit on errors
+- PowerShell scripts: Use `$ErrorActionPreference = "Stop"` for error handling
+- Scripts should be idempotent when possible
+- Keep scripts focused on a single task
+- Use scripts in `Justfile` for complex or multi-step operations
+- Scripts can be used directly or via `just` commands
+- When adding new scripts, create both `.sh` and `.ps1` versions for cross-platform support
+
+**Adding New Scripts:**
+- Place new scripts in the `scripts/` directory
+- Create both `.sh` (bash) and `.ps1` (PowerShell) versions
+- Make bash scripts executable: `chmod +x scripts/your-script.sh`
+- Reference them in the `Justfile` with platform detection
+- Document their purpose in comments at the top of the script
+
 ## Questions?
 
 When in doubt:

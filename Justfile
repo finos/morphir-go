@@ -4,15 +4,58 @@
 default:
     @just --list
 
+# Internal: Detect OS and return normalized value (windows, linux, darwin, unknown)
+_os:
+    @./scripts/detect-os.sh
+
+# Internal: Get binary extension based on OS
+_bin-ext:
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        echo ".exe"; \
+    else \
+        echo ""; \
+    fi
+
+# Internal: Get script extension based on OS  
+_script-ext:
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        echo ".ps1"; \
+    else \
+        echo ".sh"; \
+    fi
+
+# Internal: Get PowerShell command (pwsh or powershell)
+_powershell:
+    @sh -c ' \
+        if command -v pwsh >/dev/null 2>&1; then \
+            echo "pwsh"; \
+        elif command -v powershell >/dev/null 2>&1; then \
+            echo "powershell"; \
+        else \
+            echo ""; \
+        fi'
+
 # Build the CLI application
 build:
     @echo "Building morphir CLI..."
-    go build -o bin/morphir ./cmd/morphir
+    @OS=`./scripts/detect-os.sh`; \
+    EXT=""; \
+    if [ "$$OS" = "windows" ]; then \
+        EXT=".exe"; \
+    fi; \
+    go build -o bin/morphir$$EXT ./cmd/morphir
 
 # Build the development version of the CLI (morphir-dev)
 build-dev:
     @echo "Building morphir-dev CLI..."
-    go build -o bin/morphir-dev ./cmd/morphir
+    @OS=`./scripts/detect-os.sh`; \
+    EXT=""; \
+    if [ "$$OS" = "windows" ]; then \
+        EXT=".exe"; \
+    fi; \
+    go build -o bin/morphir-dev$$EXT ./cmd/morphir
 
 # Run tests across all modules
 test:
@@ -36,7 +79,7 @@ lint:
 # Clean build artifacts
 clean:
     @echo "Cleaning build artifacts..."
-    rm -rf bin/
+    @if [ -d bin ]; then rm -rf bin; fi
     go clean ./...
 
 # Download dependencies for all modules
@@ -47,12 +90,17 @@ deps:
 
 # Run go mod tidy for all modules
 mod-tidy:
-    @echo "Running go mod tidy..."
-    cd cmd/morphir && go mod tidy
-    cd pkg/models && go mod tidy
-    cd pkg/tooling && go mod tidy
-    cd pkg/sdk && go mod tidy
-    cd pkg/pipeline && go mod tidy
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        if command -v pwsh >/dev/null 2>&1; then \
+            PS="pwsh"; \
+        else \
+            PS="powershell"; \
+        fi; \
+        $$PS -ExecutionPolicy Bypass -File scripts/mod-tidy.ps1; \
+    else \
+        ./scripts/mod-tidy.sh; \
+    fi
 
 # Install the CLI using go install (installs to $GOPATH/bin or $GOBIN)
 install:
@@ -62,23 +110,60 @@ install:
 
 # Install the development version as morphir-dev
 install-dev: build-dev
-    @echo "Installing morphir-dev CLI..."
-    @python3 -c "import os, subprocess, shutil; gopath = subprocess.check_output(['go', 'env', 'GOPATH']).decode().strip(); gobin = subprocess.check_output(['go', 'env', 'GOBIN']).decode().strip(); target = (gobin if gobin else f'{gopath}/bin'); os.makedirs(target, exist_ok=True); shutil.copy('bin/morphir-dev', f'{target}/morphir-dev'); print(f'Installed to {target}/morphir-dev')"
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        if command -v pwsh >/dev/null 2>&1; then \
+            PS="pwsh"; \
+        else \
+            PS="powershell"; \
+        fi; \
+        $$PS -ExecutionPolicy Bypass -File scripts/install-dev.ps1; \
+    else \
+        ./scripts/install-dev.sh; \
+    fi
 
 # Run the CLI application
 run: build
-    @./bin/morphir
+    @OS=`./scripts/detect-os.sh`; \
+    EXT=""; \
+    if [ "$$OS" = "windows" ]; then \
+        EXT=".exe"; \
+    fi; \
+    ./bin/morphir$$EXT
 
 # Run the development version of the CLI
 run-dev: build-dev
-    @./bin/morphir-dev
+    @OS=`./scripts/detect-os.sh`; \
+    EXT=""; \
+    if [ "$$OS" = "windows" ]; then \
+        EXT=".exe"; \
+    fi; \
+    ./bin/morphir-dev$$EXT
 
 # Verify all modules build successfully
 verify:
-    @echo "Verifying all modules build..."
-    go build ./cmd/morphir
-    go build ./pkg/models
-    go build ./pkg/tooling
-    go build ./pkg/sdk
-    go build ./pkg/pipeline
-    @echo "All modules build successfully!"
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        if command -v pwsh >/dev/null 2>&1; then \
+            PS="pwsh"; \
+        else \
+            PS="powershell"; \
+        fi; \
+        $$PS -ExecutionPolicy Bypass -File scripts/verify.ps1; \
+    else \
+        ./scripts/verify.sh; \
+    fi
+
+# Run CI checks (format, build, test, lint)
+ci-check:
+    @OS=`./scripts/detect-os.sh`; \
+    if [ "$$OS" = "windows" ]; then \
+        if command -v pwsh >/dev/null 2>&1; then \
+            PS="pwsh"; \
+        else \
+            PS="powershell"; \
+        fi; \
+        $$PS -ExecutionPolicy Bypass -File scripts/ci-check.ps1; \
+    else \
+        ./scripts/ci-check.sh; \
+    fi

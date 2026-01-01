@@ -1,4 +1,7 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
+[![Latest Release](https://img.shields.io/github/v/release/finos/morphir-go)](https://github.com/finos/morphir-go/releases/latest)
+[![CI](https://github.com/finos/morphir-go/actions/workflows/ci.yml/badge.svg)](https://github.com/finos/morphir-go/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/finos/morphir-go)](https://goreportcard.com/report/github.com/finos/morphir-go)
 
 # Morphir Go
 
@@ -6,15 +9,42 @@ A Go implementation of the Morphir tooling ecosystem. Morphir is a technology-ag
 
 This project provides a CLI application built with [Cobra](https://github.com/spf13/cobra) and [Bubbletea](https://github.com/charmbracelet/bubbletea), along with library modules for working with Morphir IR.
 
-## Prerequisites
+## Installation
 
+### Option 1: Download Binary (Recommended)
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/finos/morphir-go/releases/latest):
+
+- **Linux (amd64/arm64)**: `morphir_X.Y.Z_Linux_{x86_64,arm64}.tar.gz`
+- **macOS (amd64/arm64)**: `morphir_X.Y.Z_Darwin_{x86_64,arm64}.tar.gz`  
+- **Windows (amd64)**: `morphir_X.Y.Z_Windows_x86_64.zip`
+
+Extract and move to your PATH:
+
+```sh
+# Linux/macOS
+tar -xzf morphir_*.tar.gz
+sudo mv morphir /usr/local/bin/
+
+# Windows (PowerShell)
+Expand-Archive morphir_*.zip
+Move-Item morphir.exe $env:USERPROFILE\bin\
+```
+
+### Option 2: Install via Go
+
+```sh
+go install github.com/finos/morphir-go/cmd/morphir@latest
+```
+
+### Option 3: Build from Source
+
+**Prerequisites:**
 - **Go 1.25.5** or later ([download](https://golang.org/dl/))
 - **just** - A command runner for build orchestration ([install](https://github.com/casey/just))
 - **PowerShell** (Windows only) - For running build scripts on Windows ([install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell))
 
-## Installation
-
-### Building from Source
+**Build steps:**
 
 ```sh
 # Clone the repository
@@ -27,11 +57,17 @@ just build
 # The binary will be in bin/morphir
 ```
 
-### Installing to System
+**Install to system:**
 
 ```sh
 # Build and install to $GOPATH/bin or $GOBIN
 just install
+```
+
+### Verify Installation
+
+```sh
+morphir --version
 ```
 
 ## Usage
@@ -213,11 +249,73 @@ See **[AGENTS.md](AGENTS.md)** for comprehensive development guidelines.
 - [x] Initial monorepo structure
 - [x] CLI application with Cobra and Bubbletea
 - [x] Basic command structure (help, workspace)
+- [x] Cross-platform support (Linux, macOS, Windows)
+- [x] Automated releases with GoReleaser
 - [ ] Workspace initialization implementation
 - [ ] Morphir IR model support
 - [ ] Tooling utilities
 - [ ] SDK implementation
 - [ ] Pipeline processing
+
+## Releasing (for Maintainers)
+
+This project uses [GoReleaser](https://goreleaser.com/) with GitHub Actions for automated releases.
+
+### Release Process
+
+1. **Update CHANGELOG.md**
+   ```sh
+   # Move [Unreleased] changes to new version section
+   # Add release date: ## [X.Y.Z] - YYYY-MM-DD
+   # Create new [Unreleased] section
+   ```
+
+2. **Commit and tag**
+   ```sh
+   git add CHANGELOG.md
+   git commit -m "chore: prepare release vX.Y.Z"
+   git tag -a vX.Y.Z -m "Release X.Y.Z"
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+
+3. **GitHub Actions will automatically:**
+   - Build binaries for all platforms (Linux, macOS, Windows)
+   - Build for all architectures (amd64, arm64)
+   - Generate checksums
+   - Create GitHub Release with artifacts
+   - Generate release notes from commits
+
+### Local Testing
+
+Before creating a release, test locally:
+
+```sh
+# Validate GoReleaser config
+just goreleaser-check
+
+# Build snapshot (no publish)
+just release-snapshot
+
+# Full dry-run
+just release-test
+```
+
+### Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backward compatible)
+- **PATCH**: Bug fixes (backward compatible)
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for better changelogs:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation
+- `chore:` - Maintenance
+- `feat!:` or `fix!:` - Breaking change
+
+See [AGENTS.md](AGENTS.md#release-process) for detailed release documentation.
 
 ## Contributing
 For any questions, bugs or feature requests please open an [issue](https://github.com/finos/morphir-go/issues).

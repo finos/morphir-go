@@ -167,3 +167,36 @@ ci-check:
     else \
         ./scripts/ci-check.sh; \
     fi
+
+# Validate GoReleaser configuration
+goreleaser-check:
+    @echo "Validating GoReleaser configuration..."
+    @if command -v goreleaser > /dev/null; then \
+        goreleaser check; \
+    else \
+        echo "goreleaser not found. Install with: go install github.com/goreleaser/goreleaser@latest"; \
+        exit 1; \
+    fi
+
+# Test release build locally (creates snapshot without publishing)
+release-snapshot:
+    @echo "Building release snapshot..."
+    @if command -v goreleaser > /dev/null; then \
+        goreleaser release --snapshot --clean --skip=publish; \
+    else \
+        echo "goreleaser not found. Install with: go install github.com/goreleaser/goreleaser@latest"; \
+        exit 1; \
+    fi
+
+# Full dry-run of release (validates everything without publishing)
+release-test:
+    @echo "Testing release process..."
+    @if command -v goreleaser > /dev/null; then \
+        goreleaser release --skip=publish --clean; \
+    else \
+        echo "goreleaser not found. Install with: go install github.com/goreleaser/goreleaser@latest"; \
+        exit 1; \
+    fi
+
+# Note: Actual releases are handled by GitHub Actions on tag push
+# To release: git tag -a vX.Y.Z -m "Release X.Y.Z" && git push origin vX.Y.Z

@@ -289,6 +289,167 @@ The `scripts/` directory contains reusable shell scripts used in build, CI, and 
 - Reference them in the `Justfile` with platform detection
 - Document their purpose in comments at the top of the script
 
+## Release Process
+
+### Versioning Strategy
+
+**This project follows [Semantic Versioning](https://semver.org/) (SemVer):**
+
+- **MAJOR.MINOR.PATCH** (e.g., `1.2.3`)
+  - **MAJOR**: Breaking changes to public APIs or behavior
+  - **MINOR**: New features, backward compatible
+  - **PATCH**: Bug fixes, backward compatible
+
+**Pre-release versions** can be tagged with suffixes:
+- `v1.0.0-alpha.1` - Alpha release
+- `v1.0.0-beta.1` - Beta release
+- `v1.0.0-rc.1` - Release candidate
+
+### Changelog Management
+
+**All notable changes must be documented in `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/) format:**
+
+- Changes are grouped under: **Added**, **Changed**, **Deprecated**, **Removed**, **Fixed**, **Security**
+- Keep an **[Unreleased]** section at the top for ongoing work
+- When releasing, convert **[Unreleased]** to **[VERSION] - YYYY-MM-DD**
+- Add a new **[Unreleased]** section for future changes
+
+**Hybrid Approach:**
+- Manually maintain `CHANGELOG.md` for notable changes
+- GoReleaser auto-generates release notes from git commits
+- Use conventional commit format for better auto-generated notes
+
+### Conventional Commits
+
+**Use [Conventional Commits](https://www.conventionalcommits.org/) for better changelog generation:**
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
+```
+
+**Types:**
+- `feat:` - New feature (triggers MINOR version bump)
+- `fix:` - Bug fix (triggers PATCH version bump)
+- `docs:` - Documentation only
+- `style:` - Code style/formatting (no logic change)
+- `refactor:` - Code refactoring (no behavior change)
+- `perf:` - Performance improvement
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks, dependencies
+- `ci:` - CI/CD changes
+
+**Breaking changes:**
+- Add `!` after type: `feat!:` or `fix!:`
+- Or add `BREAKING CHANGE:` in footer (triggers MAJOR version bump)
+
+**Examples:**
+```bash
+git commit -m "feat(cli): add validate command for Morphir IR"
+git commit -m "fix(models): correct package name parsing"
+git commit -m "feat!: change IR structure to match spec v2"
+```
+
+### Release Workflow
+
+**Releases are automated via GitHub Actions:**
+
+1. **Update CHANGELOG.md**
+   - Move changes from `[Unreleased]` to new version section
+   - Add release date: `## [X.Y.Z] - YYYY-MM-DD`
+   - Add new `[Unreleased]` section at top
+   - Update version comparison links at bottom
+
+2. **Commit changelog**
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "chore: prepare release vX.Y.Z"
+   ```
+
+3. **Create and push tag**
+   ```bash
+   git tag -a vX.Y.Z -m "Release X.Y.Z"
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+
+4. **GitHub Actions automatically:**
+   - Runs CI checks (format, lint, test, build)
+   - Builds binaries for all platforms (Linux, macOS, Windows)
+   - Builds for all architectures (amd64, arm64)
+   - Generates checksums
+   - Creates GitHub Release with artifacts
+   - Generates release notes from git history
+
+5. **Manual release trigger (optional):**
+   - Go to GitHub Actions → Release workflow
+   - Click "Run workflow"
+   - Enter tag name (e.g., `v0.1.0`)
+
+### Local Release Testing
+
+**Before creating a release tag, test locally:**
+
+```bash
+# Validate GoReleaser configuration
+just goreleaser-check
+
+# Build a snapshot (local test, no publish)
+just release-snapshot
+
+# Full dry-run (validates everything without publishing)
+just release-test
+```
+
+### Release Artifacts
+
+**Each release includes:**
+- Cross-platform binaries: Linux, macOS, Windows
+- Multi-architecture: amd64, arm64
+- Compressed archives (`.tar.gz` for Unix, `.zip` for Windows)
+- SHA256 checksums (`checksums.txt`)
+- Auto-generated changelog from commits
+- Manual changelog from `CHANGELOG.md`
+
+### Installation Methods
+
+**Users can install via:**
+
+1. **Binary download** - Download from GitHub Releases
+2. **Go install** - `go install github.com/finos/morphir-go/cmd/morphir@vX.Y.Z`
+3. **Homebrew** - (future) `brew install finos/tap/morphir`
+
+### Version Information
+
+**The CLI embeds version information at build time:**
+
+```bash
+morphir --version
+# Output: morphir version 0.1.0 (commit: a1b2c3d, built: 2026-01-01T12:00:00Z)
+```
+
+**Version variables** (set via ldflags):
+- `Version` - SemVer version (e.g., `0.1.0`)
+- `GitCommit` - Short commit hash
+- `BuildDate` - ISO 8601 timestamp
+
+### CI/CD Workflows
+
+**Two main workflows:**
+
+1. **CI Workflow** (`.github/workflows/ci.yml`)
+   - Triggers: Push to `main`, all PRs
+   - Jobs: format check, lint, test, build matrix
+   - Ensures code quality before merge
+
+2. **Release Workflow** (`.github/workflows/release.yml`)
+   - Triggers: Tag push (`v*`), manual dispatch
+   - Uses GoReleaser for automated releases
+   - Creates GitHub Release with all artifacts
+
 ## Questions?
 
 When in doubt:

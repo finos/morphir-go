@@ -38,9 +38,7 @@ builds:
         goarch: arm64
 
 archives:
-  - id: morphir
-    format: tar.gz
-    name_template: >-
+  - name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
       {{- title .Os }}_
@@ -48,9 +46,7 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    format_overrides:
-      - goos: windows
-        format: zip
+    wrap_in_directory: false
     files:
       - README.md
       - LICENSE
@@ -60,7 +56,7 @@ checksum:
   name_template: 'checksums.txt'
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   use: github

@@ -47,3 +47,6 @@ vendor/
 *.swo
 *~
 .DS_Store
+
+# Local planning prompt files
+*.prompt.md

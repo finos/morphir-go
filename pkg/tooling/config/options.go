@@ -1,5 +1,9 @@
 package config
 
+import (
+	"github.com/finos/morphir-go/pkg/tooling/internal/configloader"
+)
+
 // Option is a functional option for configuring the Load function.
 type Option func(*loadOptions)
 
@@ -118,38 +122,46 @@ func WithoutEnv() Option {
 //
 // Options can be used to customize the loading behavior.
 func Load(opts ...Option) (Config, error) {
-	options := defaultLoadOptions()
-	for _, opt := range opts {
-		opt(&options)
+	result, err := LoadWithDetails(opts...)
+	if err != nil {
+		return Config{}, err
 	}
-
-	// Start with defaults
-	cfg := Default()
-
-	// TODO: Implement actual loading from sources
-	// This will be implemented in subsequent tasks:
-	// - morphir-go-p4z: TOML source
-	// - morphir-go-4bh: Environment variable source
-	// - morphir-go-sa3: XDG path resolution
-	// - morphir-go-843: Config merger
-	// - morphir-go-u82: Loader orchestration
-
-	_ = options // suppress unused warning for now
-
-	return cfg, nil
+	return result.Config(), nil
 }
 
 // LoadWithDetails loads configuration and returns detailed information
 // about the sources that were loaded.
 func LoadWithDetails(opts ...Option) (LoadResult, error) {
-	cfg, err := Load(opts...)
+	options := defaultLoadOptions()
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	// Create internal loader with options
+	loaderOpts := configloader.LoaderOptions{
+		WorkDir:     options.workDir,
+		EnvPrefix:   options.envPrefix,
+		SkipSystem:  options.skipSystem,
+		SkipGlobal:  options.skipGlobal,
+		SkipProject: options.skipProject,
+		SkipUser:    options.skipUser,
+		SkipEnv:     options.skipEnv,
+	}
+
+	loader := configloader.NewLoader(loaderOpts)
+	result, err := loader.Load()
 	if err != nil {
 		return LoadResult{}, err
 	}
 
-	// TODO: Populate sources from actual loading process
-	return LoadResult{
-		config:  cfg,
-		sources: nil,
-	}, nil
+	// Convert map to Config struct
+	cfg := FromMap(result.Config)
+
+	// Convert source info
+	sources := make([]SourceInfo, len(result.Sources))
+	for i, src := range result.Sources {
+		sources[i] = NewSourceInfo(src.Name, src.Path, src.Priority)
+	}
+
+	return NewLoadResult(cfg, sources), nil
 }

@@ -278,3 +278,208 @@ func (r LoadResult) Sources() []SourceInfo {
 	copy(result, r.sources)
 	return result
 }
+
+// FromMap creates a Config from a map[string]any.
+// This is used internally to convert the loaded configuration map
+// to the strongly-typed Config struct.
+//
+// The map structure should match:
+//
+//	{
+//	  "morphir": { "version": string },
+//	  "workspace": { "root": string, "output_dir": string },
+//	  "ir": { "format_version": int, "strict_mode": bool },
+//	  "codegen": { "targets": []string, "template_dir": string, "output_format": string },
+//	  "cache": { "enabled": bool, "dir": string, "max_size": int64 },
+//	  "logging": { "level": string, "format": string, "file": string },
+//	  "ui": { "color": bool, "interactive": bool, "theme": string },
+//	}
+func FromMap(m map[string]any) Config {
+	cfg := Default()
+
+	if m == nil {
+		return cfg
+	}
+
+	cfg.morphir = morphirFromMap(m, cfg.morphir)
+	cfg.workspace = workspaceFromMap(m, cfg.workspace)
+	cfg.ir = irFromMap(m, cfg.ir)
+	cfg.codegen = codegenFromMap(m, cfg.codegen)
+	cfg.cache = cacheFromMap(m, cfg.cache)
+	cfg.logging = loggingFromMap(m, cfg.logging)
+	cfg.ui = uiFromMap(m, cfg.ui)
+
+	return cfg
+}
+
+func morphirFromMap(m map[string]any, def MorphirSection) MorphirSection {
+	section, ok := m["morphir"].(map[string]any)
+	if !ok {
+		return def
+	}
+	if v, ok := section["version"].(string); ok {
+		def.version = v
+	}
+	return def
+}
+
+func workspaceFromMap(m map[string]any, def WorkspaceSection) WorkspaceSection {
+	section, ok := m["workspace"].(map[string]any)
+	if !ok {
+		return def
+	}
+	if v, ok := section["root"].(string); ok {
+		def.root = v
+	}
+	if v, ok := section["output_dir"].(string); ok {
+		def.outputDir = v
+	}
+	return def
+}
+
+func irFromMap(m map[string]any, def IRSection) IRSection {
+	section, ok := m["ir"].(map[string]any)
+	if !ok {
+		return def
+	}
+	def.formatVersion = getIntFromAny(section["format_version"], def.formatVersion)
+	if v, ok := section["strict_mode"].(bool); ok {
+		def.strictMode = v
+	}
+	return def
+}
+
+func codegenFromMap(m map[string]any, def CodegenSection) CodegenSection {
+	section, ok := m["codegen"].(map[string]any)
+	if !ok {
+		return def
+	}
+	def.targets = getStringSliceFromAny(section["targets"])
+	if v, ok := section["template_dir"].(string); ok {
+		def.templateDir = v
+	}
+	if v, ok := section["output_format"].(string); ok {
+		def.outputFormat = v
+	}
+	return def
+}
+
+func cacheFromMap(m map[string]any, def CacheSection) CacheSection {
+	section, ok := m["cache"].(map[string]any)
+	if !ok {
+		return def
+	}
+	if v, ok := section["enabled"].(bool); ok {
+		def.enabled = v
+	}
+	if v, ok := section["dir"].(string); ok {
+		def.dir = v
+	}
+	def.maxSize = getInt64FromAny(section["max_size"], def.maxSize)
+	return def
+}
+
+func loggingFromMap(m map[string]any, def LoggingSection) LoggingSection {
+	section, ok := m["logging"].(map[string]any)
+	if !ok {
+		return def
+	}
+	if v, ok := section["level"].(string); ok {
+		def.level = v
+	}
+	if v, ok := section["format"].(string); ok {
+		def.format = v
+	}
+	if v, ok := section["file"].(string); ok {
+		def.file = v
+	}
+	return def
+}
+
+func uiFromMap(m map[string]any, def UISection) UISection {
+	section, ok := m["ui"].(map[string]any)
+	if !ok {
+		return def
+	}
+	if v, ok := section["color"].(bool); ok {
+		def.color = v
+	}
+	if v, ok := section["interactive"].(bool); ok {
+		def.interactive = v
+	}
+	if v, ok := section["theme"].(string); ok {
+		def.theme = v
+	}
+	return def
+}
+
+// getIntFromAny converts various numeric types to int.
+func getIntFromAny(v any, defaultVal int) int {
+	switch val := v.(type) {
+	case int:
+		return val
+	case int64:
+		return int(val)
+	case float64:
+		return int(val)
+	}
+	return defaultVal
+}
+
+// getInt64FromAny converts various numeric types to int64.
+func getInt64FromAny(v any, defaultVal int64) int64 {
+	switch val := v.(type) {
+	case int64:
+		return val
+	case int:
+		return int64(val)
+	case float64:
+		return int64(val)
+	}
+	return defaultVal
+}
+
+// getStringSliceFromAny converts various slice types to []string.
+func getStringSliceFromAny(v any) []string {
+	switch val := v.(type) {
+	case []string:
+		if len(val) == 0 {
+			return nil
+		}
+		result := make([]string, len(val))
+		copy(result, val)
+		return result
+	case []any:
+		if len(val) == 0 {
+			return nil
+		}
+		result := make([]string, 0, len(val))
+		for _, item := range val {
+			if s, ok := item.(string); ok {
+				result = append(result, s)
+			}
+		}
+		if len(result) == 0 {
+			return nil
+		}
+		return result
+	}
+	return nil
+}
+
+// NewSourceInfo creates a new SourceInfo with the given parameters.
+func NewSourceInfo(name, path string, priority int) SourceInfo {
+	return SourceInfo{
+		name:     name,
+		path:     path,
+		priority: priority,
+	}
+}
+
+// NewLoadResult creates a new LoadResult with the given config and sources.
+func NewLoadResult(cfg Config, sources []SourceInfo) LoadResult {
+	return LoadResult{
+		config:  cfg,
+		sources: sources,
+	}
+}

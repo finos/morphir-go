@@ -1,0 +1,41 @@
+# Copilot Coding Agent Setup
+#
+# This workflow configures the development environment for the GitHub Copilot
+# coding agent when it works on issues assigned to @copilot.
+#
+# For custom instructions and coding guidelines, see AGENTS.md in the repo root.
+
+name: Copilot Setup Steps
+
+on: workflow_dispatch
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.5'
+          cache: true
+
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+      - name: Install Just
+        uses: extractions/setup-just@v2
+
+      - name: Verify setup
+        run: |
+          echo "Go version: $(go version)"
+          echo "golangci-lint version: $(golangci-lint --version)"
+          echo "just version: $(just --version)"
+          echo ""
+          echo "Workspace modules:"
+          cat go.work

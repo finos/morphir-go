@@ -21,6 +21,14 @@ When implementing features, refer to these existing Morphir implementations for 
 
 The Morphir IR specification and JSON schemas are available in the morphir-dotnet documentation. Always maintain alignment with the official IR specification when implementing features.
 
+## Architecture Decision Records (ADRs)
+
+This repo uses ADRs to document important architectural decisions and trade-offs.
+
+- ADRs live in [docs/adr](docs/adr).
+- When making a significant design change (IR modeling, codec/versioning strategy, CLI UX/behavior), add or update an ADR.
+- For discriminated union / sum type representation in Go, start with `ADR-0001`.
+
 ## Core Morphir Design Principles
 
 ### Functional Programming and Functional Domain Practices

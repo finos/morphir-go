@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
 )
 
 // Path represents a Morphir IR Path.
@@ -22,6 +24,56 @@ import (
 // Use PathFromParts to construct and Parts() to retrieve a defensive copy.
 type Path struct {
 	parts []Name
+}
+
+var pathSeparatorPattern = regexp.MustCompile(`[^\w\s]+`) // Morphir-Elm compatible
+
+// PathFromString translates a string into a Path by splitting it into names along special characters.
+//
+// This follows morphir-elm's Morphir.IR.Path.fromString behavior:
+// - any non-word characters that are not spaces are treated as separators
+// - each segment is converted using NameFromString
+func PathFromString(s string) Path {
+	segments := pathSeparatorPattern.Split(s, -1)
+	if len(segments) == 0 {
+		return Path{parts: nil}
+	}
+	parts := make([]Name, 0, len(segments))
+	for _, seg := range segments {
+		parts = append(parts, NameFromString(seg))
+	}
+	return PathFromParts(parts)
+}
+
+// ToString turns a Path into a string using the specified naming convention and separator.
+func (p Path) ToString(nameToString func(Name) string, sep string) string {
+	if len(p.parts) == 0 {
+		return ""
+	}
+	out := make([]string, 0, len(p.parts))
+	for _, n := range p.parts {
+		out = append(out, nameToString(n))
+	}
+	return strings.Join(out, sep)
+}
+
+// HasPrefix checks if prefix is a prefix of p.
+func (p Path) HasPrefix(prefix Path) bool {
+	if len(prefix.parts) == 0 {
+		return true
+	}
+	if len(p.parts) == 0 {
+		return false
+	}
+	if len(prefix.parts) > len(p.parts) {
+		return false
+	}
+	for i := range prefix.parts {
+		if !p.parts[i].Equal(prefix.parts[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 // PathFromParts constructs a Path from its component Name parts.

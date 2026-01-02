@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // QName represents a Morphir IR qualified name: (modulePath, localName).
@@ -49,6 +50,34 @@ func (q QName) Parts() (Path, Name) {
 // Equal performs structural equality.
 func (q QName) Equal(other QName) bool {
 	return q.modulePath.Equal(other.modulePath) && q.localName.Equal(other.localName)
+}
+
+// String returns the canonical Morphir string form of a qualified name.
+//
+// Format: ModulePath:localName
+// - ModulePath uses TitleCase names separated by '.'
+// - localName uses camelCase
+func (q QName) String() string {
+	return strings.Join(
+		[]string{
+			q.modulePath.ToString(func(n Name) string { return n.ToTitleCase() }, "."),
+			q.localName.ToCamelCase(),
+		},
+		":",
+	)
+}
+
+// ParseQName parses a canonical Morphir string form of a qualified name.
+//
+// Expected format: ModulePath:localName
+func ParseQName(s string) (QName, error) {
+	parts := strings.Split(s, ":")
+	if len(parts) != 2 {
+		return QName{}, fmt.Errorf("ir.QName: expected 'ModulePath:localName', got %q", s)
+	}
+	modulePath := PathFromString(parts[0])
+	localName := NameFromString(parts[1])
+	return QNameFromParts(modulePath, localName), nil
 }
 
 // MarshalJSON implements encoding/json.Marshaler.

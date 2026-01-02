@@ -48,3 +48,33 @@ func TestQNameUnmarshalRejectsInvalidParts(t *testing.T) {
 		t.Fatalf(expectedError)
 	}
 }
+
+func TestQNameStringAndParseRoundTrip(t *testing.T) {
+	q := QNameFromParts(
+		PathFromParts([]Name{NameFromParts([]string{"foo", "bar"}), NameFromParts([]string{"baz"})}),
+		NameFromParts([]string{"a", "name"}),
+	)
+
+	if got, want := q.String(), "FooBar.Baz:aName"; got != want {
+		t.Fatalf("want %q, got %q", want, got)
+	}
+
+	parsed, err := ParseQName("FooBar.Baz:aName")
+	if err != nil {
+		t.Fatalf("ParseQName: %v", err)
+	}
+	if !parsed.Equal(q) {
+		mp1, ln1 := q.Parts()
+		mp2, ln2 := parsed.Parts()
+		t.Fatalf("expected equality; original=(%v,%v) parsed=(%v,%v)", mp1.Parts(), ln1.Parts(), mp2.Parts(), ln2.Parts())
+	}
+}
+
+func TestParseQNameRejectsMalformedInput(t *testing.T) {
+	if _, err := ParseQName("no-separator"); err == nil {
+		t.Fatalf("expected error")
+	}
+	if _, err := ParseQName("a:b:c"); err == nil {
+		t.Fatalf("expected error")
+	}
+}

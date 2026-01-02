@@ -65,3 +65,27 @@ func TestPathUnmarshalRejectsInvalidNameElement(t *testing.T) {
 		t.Fatalf("expected error")
 	}
 }
+
+func TestPathFromStringSplitsMorphirStyle(t *testing.T) {
+	p := PathFromString("fooBar.Baz")
+	want := PathFromParts([]Name{NameFromParts([]string{"foo", "bar"}), NameFromParts([]string{"baz"})})
+	if !p.Equal(want) {
+		t.Fatalf("expected %v, got %v", want.Parts(), p.Parts())
+	}
+
+	p = PathFromString("foo bar/baz")
+	want = PathFromParts([]Name{NameFromParts([]string{"foo", "bar"}), NameFromParts([]string{"baz"})})
+	if !p.Equal(want) {
+		t.Fatalf("expected %v, got %v", want.Parts(), p.Parts())
+	}
+}
+
+func TestPathToStringUsesFormatterAndSeparator(t *testing.T) {
+	path := PathFromParts([]Name{NameFromParts([]string{"foo", "bar"}), NameFromParts([]string{"baz"})})
+	if got, want := path.ToString(func(n Name) string { return n.ToTitleCase() }, "."), "FooBar.Baz"; got != want {
+		t.Fatalf("want %q, got %q", want, got)
+	}
+	if got, want := path.ToString(func(n Name) string { return n.ToSnakeCase() }, "/"), "foo_bar/baz"; got != want {
+		t.Fatalf("want %q, got %q", want, got)
+	}
+}

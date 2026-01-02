@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // FQName represents a Morphir IR fully-qualified name:
@@ -54,6 +55,36 @@ func (f FQName) Equal(other FQName) bool {
 	return f.packagePath.Equal(other.packagePath) &&
 		f.modulePath.Equal(other.modulePath) &&
 		f.localName.Equal(other.localName)
+}
+
+// String returns the canonical Morphir string form of a fully-qualified name.
+//
+// Format: PackagePath:ModulePath:localName
+// - PackagePath and ModulePath use TitleCase names separated by '.'
+// - localName uses camelCase
+func (f FQName) String() string {
+	return strings.Join(
+		[]string{
+			f.packagePath.ToString(func(n Name) string { return n.ToTitleCase() }, "."),
+			f.modulePath.ToString(func(n Name) string { return n.ToTitleCase() }, "."),
+			f.localName.ToCamelCase(),
+		},
+		":",
+	)
+}
+
+// ParseFQName parses a canonical Morphir string form of a fully-qualified name.
+//
+// Expected format: PackagePath:ModulePath:localName
+func ParseFQName(s string) (FQName, error) {
+	parts := strings.Split(s, ":")
+	if len(parts) != 3 {
+		return FQName{}, fmt.Errorf("ir.FQName: expected 'PackagePath:ModulePath:localName', got %q", s)
+	}
+	packagePath := PathFromString(parts[0])
+	modulePath := PathFromString(parts[1])
+	localName := NameFromString(parts[2])
+	return FQNameFromParts(packagePath, modulePath, localName), nil
 }
 
 // MarshalJSON implements encoding/json.Marshaler.

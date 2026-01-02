@@ -240,6 +240,8 @@ type SourceInfo struct {
 	name     string // Source name (e.g., "project", "global", "env")
 	path     string // File path or environment variable name
 	priority int    // Priority level (higher = takes precedence)
+	loaded   bool   // Whether the source was successfully loaded
+	err      error  // Error if loading failed
 }
 
 // Name returns the source name.
@@ -255,6 +257,16 @@ func (s SourceInfo) Path() string {
 // Priority returns the priority level.
 func (s SourceInfo) Priority() int {
 	return s.priority
+}
+
+// Loaded returns whether the source was successfully loaded.
+func (s SourceInfo) Loaded() bool {
+	return s.loaded
+}
+
+// Error returns any error that occurred while loading this source.
+func (s SourceInfo) Error() error {
+	return s.err
 }
 
 // LoadResult contains the loaded configuration and metadata about its sources.
@@ -468,11 +480,13 @@ func getStringSliceFromAny(v any) []string {
 }
 
 // NewSourceInfo creates a new SourceInfo with the given parameters.
-func NewSourceInfo(name, path string, priority int) SourceInfo {
+func NewSourceInfo(name, path string, priority int, loaded bool, err error) SourceInfo {
 	return SourceInfo{
 		name:     name,
 		path:     path,
 		priority: priority,
+		loaded:   loaded,
+		err:      err,
 	}
 }
 

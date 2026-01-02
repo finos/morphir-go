@@ -432,7 +432,7 @@ func assertBool(t *testing.T, name string, want, got bool) {
 }
 
 func TestNewSourceInfo(t *testing.T) {
-	info := NewSourceInfo("project", "/path/to/morphir.toml", 300)
+	info := NewSourceInfo("project", "/path/to/morphir.toml", 300, true, nil)
 
 	if got := info.Name(); got != "project" {
 		t.Errorf("Name: want project, got %q", got)
@@ -443,13 +443,19 @@ func TestNewSourceInfo(t *testing.T) {
 	if got := info.Priority(); got != 300 {
 		t.Errorf("Priority: want 300, got %d", got)
 	}
+	if got := info.Loaded(); got != true {
+		t.Errorf("Loaded: want true, got %v", got)
+	}
+	if got := info.Error(); got != nil {
+		t.Errorf("Error: want nil, got %v", got)
+	}
 }
 
 func TestNewLoadResult(t *testing.T) {
 	cfg := Default()
 	sources := []SourceInfo{
-		NewSourceInfo("defaults", "(built-in)", 0),
-		NewSourceInfo("project", "/path/morphir.toml", 300),
+		NewSourceInfo("defaults", "(built-in)", 0, true, nil),
+		NewSourceInfo("project", "/path/morphir.toml", 300, true, nil),
 	}
 	result := NewLoadResult(cfg, sources)
 

@@ -160,7 +160,7 @@ func LoadWithDetails(opts ...Option) (LoadResult, error) {
 	// Convert source info
 	sources := make([]SourceInfo, len(result.Sources))
 	for i, src := range result.Sources {
-		sources[i] = NewSourceInfo(src.Name, src.Path, src.Priority)
+		sources[i] = NewSourceInfo(src.Name, src.Path, src.Priority, src.Loaded, src.Error)
 	}
 
 	return NewLoadResult(cfg, sources), nil

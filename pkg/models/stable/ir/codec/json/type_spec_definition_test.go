@@ -133,6 +133,58 @@ func TestTypeDefinitionVersionedTagsAndAccessControlledShape(t *testing.T) {
 	}
 }
 
+func TestTypeDefinitionRoundTripV3(t *testing.T) {
+	opts := Options{FormatVersion: FormatV3}
+
+	foo := ir.NameFromParts([]string{"foo"})
+	arg := ir.NameFromParts([]string{"x"})
+
+	alias := ir.NewTypeAliasDefinition[unitAttr](
+		[]ir.Name{ir.NameFromParts([]string{"a"})},
+		ir.NewTypeUnit(unitAttr{}),
+	)
+
+	ctors := ir.TypeConstructors[unitAttr]{
+		ir.TypeConstructorFromParts[unitAttr](foo, ir.TypeConstructorArgs[unitAttr]{
+			ir.TypeConstructorArgFromParts[unitAttr](arg, ir.NewTypeUnit(unitAttr{})),
+		}),
+	}
+	custom := ir.NewCustomTypeDefinition[unitAttr](
+		[]ir.Name{ir.NameFromParts([]string{"a"})},
+		ir.Public(ctors),
+	)
+
+	for _, def := range []ir.TypeDefinition[unitAttr]{alias, custom} {
+		data, err := EncodeTypeDefinition(opts, encodeUnitAttr, def)
+		if err != nil {
+			t.Fatalf("EncodeTypeDefinition: %v", err)
+		}
+		decoded, err := DecodeTypeDefinition(opts, decodeUnitAttr, data)
+		if err != nil {
+			t.Fatalf("DecodeTypeDefinition: %v", err)
+		}
+		if !equalTypeDefinition(def, decoded) {
+			t.Fatalf("expected structural equality after roundtrip")
+		}
+	}
+}
+
+func TestTypeDefinitionDecodeRejectsWrongVersion(t *testing.T) {
+	def := ir.NewTypeAliasDefinition[unitAttr](
+		[]ir.Name{ir.NameFromParts([]string{"a"})},
+		ir.NewTypeUnit(unitAttr{}),
+	)
+
+	dataV3, err := EncodeTypeDefinition(Options{FormatVersion: FormatV3}, encodeUnitAttr, def)
+	if err != nil {
+		t.Fatalf("EncodeTypeDefinition(v3): %v", err)
+	}
+
+	if _, err := DecodeTypeDefinition(Options{FormatVersion: FormatV1}, decodeUnitAttr, dataV3); err == nil {
+		t.Fatalf("expected v1 decode to fail on v3 payload")
+	}
+}
+
 func TestTypeSpecificationDecodeRejectsWrongVersion(t *testing.T) {
 	optsV3 := Options{FormatVersion: FormatV3}
 	spec := ir.NewOpaqueTypeSpecification[unitAttr]([]ir.Name{ir.NameFromParts([]string{"a"})})
@@ -169,6 +221,27 @@ func equalTypeSpecification(left ir.TypeSpecification[unitAttr], right ir.TypeSp
 			ir.EqualType(func(unitAttr, unitAttr) bool { return true }, ld.BaseType(), rd.BaseType()) &&
 			ld.FromBaseType().Equal(rd.FromBaseType()) &&
 			ld.ToBaseType().Equal(rd.ToBaseType())
+	default:
+		return false
+	}
+}
+
+func equalTypeDefinition(left ir.TypeDefinition[unitAttr], right ir.TypeDefinition[unitAttr]) bool {
+	switch l := left.(type) {
+	case ir.TypeAliasDefinition[unitAttr]:
+		r, ok := right.(ir.TypeAliasDefinition[unitAttr])
+		return ok && equalNameList(l.TypeParams(), r.TypeParams()) && ir.EqualType(func(unitAttr, unitAttr) bool { return true }, l.Expression(), r.Expression())
+	case ir.CustomTypeDefinition[unitAttr]:
+		r, ok := right.(ir.CustomTypeDefinition[unitAttr])
+		if !ok {
+			return false
+		}
+		lc := l.Constructors()
+		rc := r.Constructors()
+		if lc.Access() != rc.Access() {
+			return false
+		}
+		return equalNameList(l.TypeParams(), r.TypeParams()) && equalConstructors(lc.Value(), rc.Value())
 	default:
 		return false
 	}

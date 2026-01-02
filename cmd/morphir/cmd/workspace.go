@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -17,6 +18,7 @@ var workspaceCmd = &cobra.Command{
 var (
 	initHidden bool
 	initName   string
+	initJSON   bool
 )
 
 var workspaceInitCmd = &cobra.Command{
@@ -61,7 +63,33 @@ func runWorkspaceInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to initialize workspace: %w", err)
 	}
 
-	// Report success
+	if initJSON {
+		return printInitJSON(result)
+	}
+
+	return printInitText(result)
+}
+
+// printInitJSON outputs initialization result as JSON
+func printInitJSON(result workspace.InitResult) error {
+	ws := result.Workspace()
+	output := map[string]any{
+		"root":          ws.Root(),
+		"config_path":   ws.ConfigPath(),
+		"created_dirs":  result.CreatedDirs(),
+		"created_files": result.CreatedFiles(),
+	}
+
+	data, err := json.MarshalIndent(output, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal result: %w", err)
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+// printInitText outputs initialization result as human-readable text
+func printInitText(result workspace.InitResult) error {
 	ws := result.Workspace()
 	fmt.Printf("Initialized Morphir workspace at %s\n", ws.Root())
 	fmt.Printf("  Config: %s\n", ws.ConfigPath())
@@ -91,4 +119,6 @@ func init() {
 		"Place morphir.toml inside .morphir/ directory")
 	workspaceInitCmd.Flags().StringVar(&initName, "name", "",
 		"Project name (defaults to directory name)")
+	workspaceInitCmd.Flags().BoolVar(&initJSON, "json", false,
+		"Output as JSON")
 }

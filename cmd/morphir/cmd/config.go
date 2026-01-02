@@ -1,9 +1,16 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/finos/morphir-go/pkg/config"
 	"github.com/spf13/cobra"
+)
+
+var (
+	configShowJSON bool
+	configPathJSON bool
 )
 
 var configCmd = &cobra.Command{
@@ -41,6 +48,63 @@ func runConfigShow(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
+	if configShowJSON {
+		return printConfigJSON(cfg)
+	}
+
+	return printConfigText(cfg)
+}
+
+// printConfigJSON outputs configuration as JSON
+func printConfigJSON(cfg config.Config) error {
+	output := configToMap(cfg)
+	data, err := json.MarshalIndent(output, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal config: %w", err)
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+// configToMap converts a Config to a map for JSON serialization
+func configToMap(cfg config.Config) map[string]any {
+	return map[string]any{
+		"morphir": map[string]any{
+			"version": cfg.Morphir().Version(),
+		},
+		"workspace": map[string]any{
+			"root":       cfg.Workspace().Root(),
+			"output_dir": cfg.Workspace().OutputDir(),
+		},
+		"ir": map[string]any{
+			"format_version": cfg.IR().FormatVersion(),
+			"strict_mode":    cfg.IR().StrictMode(),
+		},
+		"codegen": map[string]any{
+			"targets":       cfg.Codegen().Targets(),
+			"template_dir":  cfg.Codegen().TemplateDir(),
+			"output_format": cfg.Codegen().OutputFormat(),
+		},
+		"cache": map[string]any{
+			"enabled":  cfg.Cache().Enabled(),
+			"dir":      cfg.Cache().Dir(),
+			"max_size": cfg.Cache().MaxSize(),
+		},
+		"logging": map[string]any{
+			"level":  cfg.Logging().Level(),
+			"format": cfg.Logging().Format(),
+			"file":   cfg.Logging().File(),
+		},
+		"ui": map[string]any{
+			"color":       cfg.UI().Color(),
+			"interactive": cfg.UI().Interactive(),
+			"theme":       cfg.UI().Theme(),
+		},
+	}
+}
+
+// printConfigText outputs configuration as human-readable text
+func printConfigText(cfg config.Config) error {
 	// Display morphir section
 	fmt.Println("[morphir]")
 	fmt.Printf("  version = %q\n", cfg.Morphir().Version())
@@ -89,6 +153,41 @@ func runConfigPath(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
+	if configPathJSON {
+		return printPathJSON(result)
+	}
+
+	return printPathText(result)
+}
+
+// printPathJSON outputs configuration sources as JSON
+func printPathJSON(result config.LoadResult) error {
+	sources := result.Sources()
+	output := make([]map[string]any, len(sources))
+
+	for i, src := range sources {
+		entry := map[string]any{
+			"name":     src.Name(),
+			"path":     src.Path(),
+			"priority": src.Priority(),
+			"loaded":   src.Loaded(),
+		}
+		if src.Error() != nil {
+			entry["error"] = src.Error().Error()
+		}
+		output[i] = entry
+	}
+
+	data, err := json.MarshalIndent(output, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal sources: %w", err)
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+// printPathText outputs configuration sources as human-readable text
+func printPathText(result config.LoadResult) error {
 	fmt.Println("Configuration sources (in priority order):")
 	fmt.Println()
 
@@ -119,6 +218,9 @@ func statusIcon(loaded bool) string {
 }
 
 func init() {
+	configShowCmd.Flags().BoolVar(&configShowJSON, "json", false, "Output as JSON")
+	configPathCmd.Flags().BoolVar(&configPathJSON, "json", false, "Output as JSON")
+
 	configCmd.AddCommand(configShowCmd)
 	configCmd.AddCommand(configPathCmd)
 }

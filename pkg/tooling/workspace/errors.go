@@ -11,6 +11,9 @@ var (
 	// ErrNotDirectory is returned when a path is expected to be a directory
 	// but is not.
 	ErrNotDirectory = errors.New("path is not a directory")
+
+	// ErrPathNotExist is returned when a path does not exist.
+	ErrPathNotExist = errors.New("path does not exist")
 )
 
 // DiscoverError represents an error that occurred during workspace discovery.
@@ -58,4 +61,37 @@ func (e *NotFoundError) Detail() string {
 	}
 	b.WriteString("\nTo create a workspace, run: morphir init\n")
 	return b.String()
+}
+
+// InitError represents an error that occurred during workspace initialization.
+type InitError struct {
+	Path string // The path where initialization was attempted
+	Err  error  // The underlying error
+}
+
+// Error returns the error message.
+func (e *InitError) Error() string {
+	return fmt.Sprintf("failed to initialize workspace at %q: %v", e.Path, e.Err)
+}
+
+// Unwrap returns the underlying error.
+func (e *InitError) Unwrap() error {
+	return e.Err
+}
+
+// AlreadyExistsError is returned when trying to initialize a workspace
+// in a directory that is already part of a workspace.
+type AlreadyExistsError struct {
+	ExistingRoot string // The root of the existing workspace
+}
+
+// Error returns the error message.
+func (e *AlreadyExistsError) Error() string {
+	return fmt.Sprintf("workspace already exists at %q", e.ExistingRoot)
+}
+
+// Is allows errors.Is to match AlreadyExistsError.
+func (e *AlreadyExistsError) Is(target error) bool {
+	_, ok := target.(*AlreadyExistsError)
+	return ok
 }

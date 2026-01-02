@@ -1068,3 +1068,63 @@ func mapValueDefinitionAttrs[TA any, VA any, TB any, VB any](def ValueDefinition
 	}
 	return NewValueDefinition[TB, VB](inputs, nil, body), nil
 }
+
+// ValueSpecification represents the specification (signature) of a value.
+// In Elm: { inputs : List ( Name, Type ta ), output : Type ta }
+type ValueSpecification[TA any] struct {
+	inputs []ValueSpecificationInput[TA]
+	output Type[TA]
+}
+
+// ValueSpecificationInput represents an input parameter to a value specification.
+type ValueSpecificationInput[TA any] struct {
+	name Name
+	tpe  Type[TA]
+}
+
+// ValueSpecificationInputFromParts constructs a value specification input.
+func ValueSpecificationInputFromParts[TA any](name Name, tpe Type[TA]) ValueSpecificationInput[TA] {
+	return ValueSpecificationInput[TA]{name: name, tpe: tpe}
+}
+
+func (i ValueSpecificationInput[TA]) Name() Name     { return i.name }
+func (i ValueSpecificationInput[TA]) Type() Type[TA] { return i.tpe }
+
+// NewValueSpecification creates a new value specification.
+func NewValueSpecification[TA any](inputs []ValueSpecificationInput[TA], output Type[TA]) ValueSpecification[TA] {
+	var copied []ValueSpecificationInput[TA]
+	if len(inputs) > 0 {
+		copied = make([]ValueSpecificationInput[TA], len(inputs))
+		copy(copied, inputs)
+	}
+	return ValueSpecification[TA]{inputs: copied, output: output}
+}
+
+// Inputs returns the input parameters.
+func (s ValueSpecification[TA]) Inputs() []ValueSpecificationInput[TA] {
+	if len(s.inputs) == 0 {
+		return nil
+	}
+	copied := make([]ValueSpecificationInput[TA], len(s.inputs))
+	copy(copied, s.inputs)
+	return copied
+}
+
+// Output returns the output type.
+func (s ValueSpecification[TA]) Output() Type[TA] { return s.output }
+
+// EqualValueSpecification checks structural equality of two value specifications.
+func EqualValueSpecification[TA any](eq func(TA, TA) bool, left ValueSpecification[TA], right ValueSpecification[TA]) bool {
+	if len(left.inputs) != len(right.inputs) {
+		return false
+	}
+	for i := range left.inputs {
+		if !left.inputs[i].name.Equal(right.inputs[i].name) {
+			return false
+		}
+		if !EqualType(eq, left.inputs[i].tpe, right.inputs[i].tpe) {
+			return false
+		}
+	}
+	return EqualType(eq, left.output, right.output)
+}

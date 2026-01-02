@@ -36,26 +36,26 @@ func TestFQNameJSONRoundTrip(t *testing.T) {
 func TestFQNameUnmarshalRejectsWrongLength(t *testing.T) {
 	var f FQName
 	if err := json.Unmarshal([]byte(`[]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[],[]]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[],[],[],[]]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }
 
 func TestFQNameUnmarshalRejectsInvalidParts(t *testing.T) {
 	var f FQName
 	if err := json.Unmarshal([]byte(`[{"bad":true}, [], []]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[], {"bad":true}, []]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[], [], {"bad":true}]`), &f); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }
 
@@ -83,12 +83,12 @@ func TestFQNameStringAndParseRoundTrip(t *testing.T) {
 
 func TestParseFQNameRejectsMalformedInput(t *testing.T) {
 	if _, err := ParseFQName("no-separator"); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 	if _, err := ParseFQName("a:b"); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 	if _, err := ParseFQName("a:b:c:d"); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }

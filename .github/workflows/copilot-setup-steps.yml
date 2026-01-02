@@ -4,6 +4,27 @@
 # coding agent when it works on issues assigned to @copilot.
 #
 # For custom instructions and coding guidelines, see AGENTS.md in the repo root.
+#
+# MCP Server Configuration:
+# Configure MCP servers via GitHub UI: Settings > Copilot > Coding agent
+# Recommended configuration:
+#
+# {
+#   "mcpServers": {
+#     "context7": {
+#       "type": "local",
+#       "command": "npx",
+#       "args": ["-y", "@upstash/context7-mcp"],
+#       "tools": ["resolve-library-id", "get-library-docs"]
+#     },
+#     "playwright": {
+#       "type": "local",
+#       "command": "npx",
+#       "args": ["-y", "@playwright/mcp@latest"],
+#       "tools": ["*"]
+#     }
+#   }
+# }
 
 name: Copilot Setup Steps
 
@@ -19,6 +40,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
@@ -31,8 +57,13 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@v2
 
+      - name: Install Playwright dependencies
+        run: npx -y playwright install --with-deps chromium
+
       - name: Verify setup
         run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
           echo "Go version: $(go version)"
           echo "golangci-lint version: $(golangci-lint --version)"
           echo "just version: $(just --version)"

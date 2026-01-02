@@ -33,6 +33,8 @@ We considered multiple approaches for simulating sum types in Go:
 
 ## Decision
 
+This section captures the **target end-state** we are converging toward. The next section (“Implementation Status”) documents what is already implemented today.
+
 We will model Morphir IR sum types in Go using:
 
 1. **Sealed interfaces + one struct per case** for each union type (internal representation).

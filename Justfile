@@ -72,13 +72,31 @@ fmt:
     @echo "Formatting Go code..."
     go fmt ./...
 
+# Check code formatting without modifying files
+fmt-check:
+    @echo "Checking code formatting..."
+    @UNFORMATTED=$$(gofmt -s -l .); \
+    if [ -n "$$UNFORMATTED" ]; then \
+        echo "The following files are not formatted:"; \
+        echo "$$UNFORMATTED"; \
+        echo ""; \
+        echo "Run 'just fmt' to fix formatting issues."; \
+        exit 1; \
+    else \
+        echo "✓ All files are properly formatted"; \
+    fi
+
 # Run linters (requires golangci-lint)
 lint:
     @echo "Running linters..."
     @if command -v golangci-lint > /dev/null; then \
-        golangci-lint run; \
+        for dir in cmd/morphir pkg/models pkg/tooling pkg/sdk pkg/pipeline; do \
+            echo "Linting $$dir..."; \
+            (cd "$$dir" && golangci-lint run --timeout=5m); \
+        done; \
     else \
         echo "golangci-lint not found. Install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
+        exit 1; \
     fi
 
 # Clean build artifacts

@@ -1,7 +1,7 @@
 # ADR-0001: Representing Morphir IR Sum Types (Discriminated Unions) in Go
 
 - Status: Accepted
-- Date: 2026-01-02
+- Date: 2026-01-01
 - Deciders: Morphir Maintainers
 - Technical Story: Port Morphir IR from DU-first languages (F#/Elm) to Go with multi-version JSON schema support.
 
@@ -49,6 +49,53 @@ We will model Morphir IR sum types in Go using:
 
 This yields a DU-like internal model with robust versioned I/O.
 
+## Implementation Status (Current Repo)
+
+This ADR describes the preferred *end-state* architecture. The repo currently implements the core of the approach, with some deliberate pragmatism while the port is still early.
+
+### Implemented
+
+- **Sealed interfaces + per-case structs**
+  - Example: `Type[A]` in `pkg/models/stable/ir` uses an unexported interface method (e.g., `isType()`) to prevent implementations outside the package.
+- **Match/Fold/Map helpers (manual, for `Type`)**
+  - Implemented for `Type[A]` in `pkg/models/stable/ir/type_match_fold.go`.
+  - Provides `MatchType`, `FoldType`, `MapType`, and `MapTypeAttributes` (plus `Must*` convenience functions).
+- **Codec boundary (version-aware) without leaking JSON into IR**
+  - JSON encoding/decoding is implemented under `pkg/models/stable/ir/codec/json`.
+  - A single codec package supports multiple Morphir JSON shapes via an `Options{FormatVersion: ...}` switch (v1/v2/v3).
+  - Includes codecs for `Name`, `Path`, `QName`, `FQName`, `Type`, `TypeSpecification`, `TypeDefinition`, constructors, and `AccessControlled`.
+- **Tests exist and are version-aware**
+  - Roundtrips plus version-specific shape assertions and negative tests for cross-version mismatches.
+
+### Not Implemented Yet (Gaps vs Recommendation)
+
+- **Code generation**
+  - All union modeling and codecs are handwritten today.
+  - This is manageable for the first module(s), but it will become costly as more IR modules are ported.
+- **Generated helpers across all unions**
+  - Only `Type` currently has `Match`/`Fold`/`Map` helpers.
+  - Other unions will currently rely on `type switch` at call sites until helpers are added or generated.
+- **Per-version codec packages (`codec/v1`, `codec/v2`, …)**
+  - We currently have a single package with internal branching by `FormatVersion`.
+  - This keeps the public surface small early on, but can increase complexity as more versions/types are supported.
+
+### Practical Consequences / Trade-offs (Why this is OK for now)
+
+- The **core invariant** still holds: IR types are stable and do not embed JSON knowledge; version churn is isolated to the codec layer.
+- The repo gets **fast iteration** early: one package, one Options switch, fewer files.
+- The main risk is **scaling pressure**:
+  - match/fold/map helpers and per-version codec branching will become repetitive.
+  - code generation will likely be the right next step once we move beyond the first few IR modules.
+
+### Trigger Points for Retrofitting Toward the ADR
+
+Consider introducing generation and/or per-version codec packages when one or more of these become true:
+
+- We start porting additional IR modules with many unions (e.g., `Value`, `Pattern`, `Literal`).
+- Codec functions routinely hit lint thresholds for complexity/duplication.
+- We need systematic traversal/rewrites across many unions (not just `Type`).
+- We want schema-driven evolution where the schema itself becomes the generator input.
+
 ## Rationale
 
 ### Why sealed interfaces + per-case structs
@@ -93,6 +140,11 @@ Go lacks first-class pattern matching and exhaustiveness checking. Generated hel
     - `ir` union definitions and constructors (optional),
     - `Match`/`Fold`/`Map`,
     - `codec/vX` implementations.
+
+  **As implemented today** (incremental subset of the above):
+
+  - `pkg/models/stable/ir/` — stable IR domain types (no JSON tags, no `encoding/json` hooks)
+  - `pkg/models/stable/ir/codec/json/` — version-aware Morphir-compatible JSON codecs selected via `Options.FormatVersion`
 
 ### Sealed interface pattern (closed world)
 

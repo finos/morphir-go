@@ -10,9 +10,12 @@ Write-Host "Running CI checks..."
 
 # Format check
 Write-Host "Checking code formatting..."
-$formatOutput = go fmt ./...
-if ($formatOutput) {
-    Write-Host "✗ Code formatting issues found. Run 'just fmt' to fix." -ForegroundColor Red
+$unformatted = gofmt -s -l .
+if ($unformatted) {
+    Write-Host "✗ The following files are not formatted:" -ForegroundColor Red
+    Write-Host $unformatted
+    Write-Host ""
+    Write-Host "Run 'just fmt' to fix formatting issues." -ForegroundColor Red
     exit 1
 } else {
     Write-Host "✓ Code is properly formatted" -ForegroundColor Green
@@ -24,12 +27,25 @@ Write-Host "Verifying all modules build..."
 
 # Run tests
 Write-Host "Running tests..."
-go test ./...
+$modules = @("cmd/morphir", "pkg/models", "pkg/tooling", "pkg/sdk", "pkg/pipeline")
+foreach ($dir in $modules) {
+    if (Test-Path $dir) {
+        Write-Host "Testing $dir..."
+        Push-Location $dir
+        go test ./...
+        Pop-Location
+    }
+}
 
 # Lint check (if available)
 if (Get-Command golangci-lint -ErrorAction SilentlyContinue) {
     Write-Host "Running linters..."
-    golangci-lint run ./...
+    foreach ($dir in $modules) {
+        Write-Host "Linting $dir..."
+        Push-Location $dir
+        golangci-lint run --timeout=5m
+        Pop-Location
+    }
     Write-Host "✓ Linting passed" -ForegroundColor Green
 } else {
     Write-Host "⚠ golangci-lint not found, skipping lint check" -ForegroundColor Yellow

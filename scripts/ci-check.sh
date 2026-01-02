@@ -12,11 +12,15 @@ echo "Running CI checks..."
 
 # Format check
 echo "Checking code formatting..."
-if ! go fmt ./... | grep -q .; then
-    echo "✓ Code is properly formatted"
-else
-    echo "✗ Code formatting issues found. Run 'just fmt' to fix."
+UNFORMATTED=$(gofmt -s -l .)
+if [ -n "$UNFORMATTED" ]; then
+    echo "✗ The following files are not formatted:"
+    echo "$UNFORMATTED"
+    echo ""
+    echo "Run 'just fmt' to fix formatting issues."
     exit 1
+else
+    echo "✓ Code is properly formatted"
 fi
 
 # Build verification
@@ -35,7 +39,10 @@ done
 # Lint check (if available)
 if command -v golangci-lint > /dev/null; then
     echo "Running linters..."
-    golangci-lint run
+    for dir in cmd/morphir pkg/models pkg/tooling pkg/sdk pkg/pipeline; do
+        echo "Linting $dir..."
+        (cd "$dir" && golangci-lint run --timeout=5m)
+    done
     echo "✓ Linting passed"
 else
     echo "⚠ golangci-lint not found, skipping lint check"

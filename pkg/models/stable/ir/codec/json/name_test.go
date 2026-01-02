@@ -28,9 +28,9 @@ func TestNameUnsupportedEncodingsFail(t *testing.T) {
 	name := ir.NameFromParts([]string{"x"})
 
 	if _, err := EncodeName(Options{NameEncoding: NameAsString}, name); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 	if _, err := EncodeName(Options{NameEncoding: NameAsURL}, name); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }

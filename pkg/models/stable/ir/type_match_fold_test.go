@@ -73,7 +73,7 @@ func TestMatchTypeErrorsOnMissingHandler(t *testing.T) {
 
 	_, err := MatchType[struct{}, string](n, TypeCases[struct{}, string]{})
 	if err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }
 

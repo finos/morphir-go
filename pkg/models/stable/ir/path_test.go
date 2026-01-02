@@ -53,7 +53,7 @@ func TestPathUnmarshalRejectsNonArray(t *testing.T) {
 	var p Path
 	err := json.Unmarshal([]byte(`{"not":"an array"}`), &p)
 	if err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }
 
@@ -62,7 +62,7 @@ func TestPathUnmarshalRejectsInvalidNameElement(t *testing.T) {
 	// Each element must decode as a Name (i.e. array of strings)
 	err := json.Unmarshal([]byte(`[ ["ok"], {"bad":true} ]`), &p)
 	if err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }
 

@@ -75,12 +75,12 @@ func TestPathQNameFQNameUnsupportedNameEncodingsFail(t *testing.T) {
 	opts := Options{NameEncoding: NameAsString}
 
 	if _, err := EncodePath(opts, ir.PathFromParts([]ir.Name{ir.NameFromParts([]string{"x"})})); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if _, err := EncodeQName(opts, ir.QNameFromParts(ir.PathFromParts(nil), ir.NameFromParts([]string{"x"}))); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if _, err := EncodeFQName(opts, ir.FQNameFromParts(ir.PathFromParts(nil), ir.PathFromParts(nil), ir.NameFromParts([]string{"x"}))); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }

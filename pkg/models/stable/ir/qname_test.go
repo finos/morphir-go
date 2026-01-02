@@ -31,10 +31,10 @@ func TestQNameJSONRoundTrip(t *testing.T) {
 func TestQNameUnmarshalRejectsWrongLength(t *testing.T) {
 	var q QName
 	if err := json.Unmarshal([]byte(`[]`), &q); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[],[],[]]`), &q); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }
 
@@ -42,10 +42,10 @@ func TestQNameUnmarshalRejectsInvalidParts(t *testing.T) {
 	var q QName
 	// modulePath must be a Path (array of Names), localName must be a Name (array of strings).
 	if err := json.Unmarshal([]byte(`[{"bad":true}, ["ok"]]`), &q); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 	if err := json.Unmarshal([]byte(`[[["ok"]], {"bad":true}]`), &q); err == nil {
-		t.Fatalf(expectedError)
+		t.Fatal(expectedError)
 	}
 }
 
@@ -72,9 +72,9 @@ func TestQNameStringAndParseRoundTrip(t *testing.T) {
 
 func TestParseQNameRejectsMalformedInput(t *testing.T) {
 	if _, err := ParseQName("no-separator"); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 	if _, err := ParseQName("a:b:c"); err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }

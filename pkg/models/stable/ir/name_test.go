@@ -44,7 +44,7 @@ func TestNameUnmarshalRejectsNonStringElements(t *testing.T) {
 	var n Name
 	err := json.Unmarshal([]byte(`["ok", 1]`), &n)
 	if err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }
 
@@ -52,7 +52,7 @@ func TestNameUnmarshalRejectsNonArray(t *testing.T) {
 	var n Name
 	err := json.Unmarshal([]byte(`{"not":"an array"}`), &n)
 	if err == nil {
-		t.Fatalf("expected error")
+		t.Fatal(expectedError)
 	}
 }
 

@@ -132,8 +132,10 @@ func ModuleDefinitionTypeFromParts[TA any](name Name, definition AccessControlle
 	return ModuleDefinitionType[TA]{name: name, definition: definition}
 }
 
-func (t ModuleDefinitionType[TA]) Name() Name                                        { return t.name }
-func (t ModuleDefinitionType[TA]) Definition() AccessControlled[Documented[TypeDefinition[TA]]] { return t.definition }
+func (t ModuleDefinitionType[TA]) Name() Name { return t.name }
+func (t ModuleDefinitionType[TA]) Definition() AccessControlled[Documented[TypeDefinition[TA]]] {
+	return t.definition
+}
 
 // ModuleDefinitionValue represents a value in a module definition.
 type ModuleDefinitionValue[TA any, VA any] struct {

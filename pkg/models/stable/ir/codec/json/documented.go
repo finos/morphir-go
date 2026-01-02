@@ -12,7 +12,7 @@ import (
 //
 // In Morphir-Elm: { "doc": string, "value": value }
 func EncodeDocumented[A any](opts Options, encodeValue func(A) (json.RawMessage, error), doc ir.Documented[A]) ([]byte, error) {
-	opts = opts.withDefaults()
+	_ = opts.withDefaults() // opts reserved for future format-version-specific encoding
 	if encodeValue == nil {
 		return nil, fmt.Errorf("codec/json: encodeValue must not be nil")
 	}
@@ -44,7 +44,7 @@ func EncodeDocumented[A any](opts Options, encodeValue func(A) (json.RawMessage,
 
 // DecodeDocumented decodes a Documented value using Morphir-compatible JSON.
 func DecodeDocumented[A any](opts Options, decodeValue func(json.RawMessage) (A, error), data []byte) (ir.Documented[A], error) {
-	opts = opts.withDefaults()
+	_ = opts.withDefaults() // opts reserved for future format-version-specific decoding
 	if decodeValue == nil {
 		var zero ir.Documented[A]
 		return zero, fmt.Errorf("codec/json: decodeValue must not be nil")

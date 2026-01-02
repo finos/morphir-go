@@ -36,7 +36,7 @@ func LibraryDependencyFromParts(name PackageName, spec PackageSpecification[Unit
 	return LibraryDependency{name: name, spec: spec}
 }
 
-func (d LibraryDependency) Name() PackageName             { return d.name }
+func (d LibraryDependency) Name() PackageName                { return d.name }
 func (d LibraryDependency) Spec() PackageSpecification[Unit] { return d.spec }
 
 // NewLibrary creates a new library distribution.

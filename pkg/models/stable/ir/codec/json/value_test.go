@@ -150,10 +150,10 @@ func TestValueRoundTripV3(t *testing.T) {
 func TestValueVersionedTags(t *testing.T) {
 	// Test that v1 uses snake_case and v2/v3 uses PascalCase tags
 	testCases := []struct {
-		name    string
-		value   ir.Value[unitAttr, unitAttr]
-		v1Tag   string
-		v3Tag   string
+		name  string
+		value ir.Value[unitAttr, unitAttr]
+		v1Tag string
+		v3Tag string
 	}{
 		{
 			"Literal",
@@ -310,7 +310,7 @@ func TestValueLetDefinitionRoundTrip(t *testing.T) {
 	// Create a simple let definition: let x = 42 in x
 	def := ir.NewValueDefinition[unitAttr, unitAttr](
 		[]ir.ValueDefinitionInput[unitAttr, unitAttr]{}, // no input types
-		ir.NewTypeUnit[unitAttr](unitAttr{}),           // output type
+		ir.NewTypeUnit[unitAttr](unitAttr{}),            // output type
 		ir.NewLiteralValue[unitAttr, unitAttr](unitAttr{}, ir.NewWholeNumberLiteral(42)),
 	)
 

@@ -1,11 +1,13 @@
 package ir
 
-import "fmt"
-
-const (
-	errTypeMustNotBeNil        = "ir: Type must not be nil"
-	errUnsupportedTypeVariantF = "ir: unsupported Type variant %T"
+import (
+	"errors"
+	"fmt"
 )
+
+var errTypeMustNotBeNil = errors.New("ir: Type must not be nil")
+
+const errUnsupportedTypeVariantF = "ir: unsupported Type variant %T"
 
 // TypeCases defines handlers for each variant of the Type sum type.
 //
@@ -31,7 +33,7 @@ type TypeCases[A any, R any] struct {
 func MatchType[A any, R any](t Type[A], c TypeCases[A, R]) (R, error) {
 	var zero R
 	if t == nil {
-		return zero, fmt.Errorf(errTypeMustNotBeNil)
+		return zero, errTypeMustNotBeNil
 	}
 
 	switch v := t.(type) {
@@ -164,7 +166,7 @@ type TypeFold[A any, R any] struct {
 // keeping IR values immutable.
 func MapType[A any](t Type[A], rewrite func(Type[A]) (Type[A], error)) (Type[A], error) {
 	if t == nil {
-		return nil, fmt.Errorf(errTypeMustNotBeNil)
+		return nil, errTypeMustNotBeNil
 	}
 
 	switch v := t.(type) {
@@ -207,7 +209,7 @@ func MustMapType[A any](t Type[A], rewrite func(Type[A]) (Type[A], error)) Type[
 // Type tree structure.
 func MapTypeAttributes[A any, B any](t Type[A], mapAttributes func(A) B) (Type[B], error) {
 	if t == nil {
-		return nil, fmt.Errorf(errTypeMustNotBeNil)
+		return nil, errTypeMustNotBeNil
 	}
 	if mapAttributes == nil {
 		return nil, fmt.Errorf("ir: mapAttributes must not be nil")
@@ -270,7 +272,7 @@ func MustMapTypeAttributes[A any, B any](t Type[A], mapAttributes func(A) B) Typ
 func FoldType[A any, R any](t Type[A], f TypeFold[A, R]) (R, error) {
 	var zero R
 	if t == nil {
-		return zero, fmt.Errorf(errTypeMustNotBeNil)
+		return zero, errTypeMustNotBeNil
 	}
 
 	switch v := t.(type) {

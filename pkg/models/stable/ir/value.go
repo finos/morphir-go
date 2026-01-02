@@ -305,9 +305,9 @@ func ValueDefinitionInputFromParts[TA any, VA any](name Name, attributes VA, tpe
 	return ValueDefinitionInput[TA, VA]{name: name, attributes: attributes, tpe: tpe}
 }
 
-func (i ValueDefinitionInput[TA, VA]) Name() Name      { return i.name }
-func (i ValueDefinitionInput[TA, VA]) Attributes() VA  { return i.attributes }
-func (i ValueDefinitionInput[TA, VA]) Type() Type[TA]  { return i.tpe }
+func (i ValueDefinitionInput[TA, VA]) Name() Name     { return i.name }
+func (i ValueDefinitionInput[TA, VA]) Attributes() VA { return i.attributes }
+func (i ValueDefinitionInput[TA, VA]) Type() Type[TA] { return i.tpe }
 
 func NewValueDefinition[TA any, VA any](inputTypes []ValueDefinitionInput[TA, VA], outputType Type[TA], body Value[TA, VA]) ValueDefinition[TA, VA] {
 	var copied []ValueDefinitionInput[TA, VA]
@@ -327,17 +327,17 @@ func (d ValueDefinition[TA, VA]) InputTypes() []ValueDefinitionInput[TA, VA] {
 	return copied
 }
 
-func (d ValueDefinition[TA, VA]) OutputType() Type[TA]  { return d.outputType }
-func (d ValueDefinition[TA, VA]) Body() Value[TA, VA]   { return d.body }
+func (d ValueDefinition[TA, VA]) OutputType() Type[TA] { return d.outputType }
+func (d ValueDefinition[TA, VA]) Body() Value[TA, VA]  { return d.body }
 
 // LetDefinitionValue corresponds to: LetDefinition va Name (Definition ta va) (Value ta va)
 //
 // Represents a single let binding.
 type LetDefinitionValue[TA any, VA any] struct {
-	attributes  VA
-	valueName   Name
-	definition  ValueDefinition[TA, VA]
-	inValue     Value[TA, VA]
+	attributes VA
+	valueName  Name
+	definition ValueDefinition[TA, VA]
+	inValue    Value[TA, VA]
 }
 
 func NewLetDefinitionValue[TA any, VA any](attributes VA, valueName Name, definition ValueDefinition[TA, VA], inValue Value[TA, VA]) Value[TA, VA] {
@@ -373,8 +373,8 @@ func NamedValueDefinitionFromParts[TA any, VA any](name Name, definition ValueDe
 	return NamedValueDefinition[TA, VA]{name: name, definition: definition}
 }
 
-func (n NamedValueDefinition[TA, VA]) Name() Name                           { return n.name }
-func (n NamedValueDefinition[TA, VA]) Definition() ValueDefinition[TA, VA]  { return n.definition }
+func (n NamedValueDefinition[TA, VA]) Name() Name                          { return n.name }
+func (n NamedValueDefinition[TA, VA]) Definition() ValueDefinition[TA, VA] { return n.definition }
 
 func NewLetRecursionValue[TA any, VA any](attributes VA, definitions []NamedValueDefinition[TA, VA], inValue Value[TA, VA]) Value[TA, VA] {
 	var copied []NamedValueDefinition[TA, VA]
@@ -467,8 +467,8 @@ func PatternMatchCaseFromParts[TA any, VA any](pattern Pattern[VA], body Value[T
 	return PatternMatchCase[TA, VA]{pattern: pattern, body: body}
 }
 
-func (c PatternMatchCase[TA, VA]) Pattern() Pattern[VA]   { return c.pattern }
-func (c PatternMatchCase[TA, VA]) Body() Value[TA, VA]    { return c.body }
+func (c PatternMatchCase[TA, VA]) Pattern() Pattern[VA] { return c.pattern }
+func (c PatternMatchCase[TA, VA]) Body() Value[TA, VA]  { return c.body }
 
 func NewPatternMatchValue[TA any, VA any](attributes VA, subject Value[TA, VA], cases []PatternMatchCase[TA, VA]) Value[TA, VA] {
 	var copied []PatternMatchCase[TA, VA]
@@ -498,8 +498,8 @@ func (v PatternMatchValue[TA, VA]) Cases() []PatternMatchCase[TA, VA] {
 //
 // Expression to update one or more fields of a record value.
 type UpdateRecordValue[TA any, VA any] struct {
-	attributes    VA
-	valueToUpdate Value[TA, VA]
+	attributes     VA
+	valueToUpdate  Value[TA, VA]
 	fieldsToUpdate []RecordField[TA, VA]
 }
 

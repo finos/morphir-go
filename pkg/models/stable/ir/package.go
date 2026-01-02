@@ -82,8 +82,10 @@ func PackageDefinitionModuleFromParts[TA any, VA any](name ModuleName, definitio
 	return PackageDefinitionModule[TA, VA]{name: name, definition: definition}
 }
 
-func (m PackageDefinitionModule[TA, VA]) Name() ModuleName                               { return m.name }
-func (m PackageDefinitionModule[TA, VA]) Definition() AccessControlled[ModuleDefinition[TA, VA]] { return m.definition }
+func (m PackageDefinitionModule[TA, VA]) Name() ModuleName { return m.name }
+func (m PackageDefinitionModule[TA, VA]) Definition() AccessControlled[ModuleDefinition[TA, VA]] {
+	return m.definition
+}
 
 // NewPackageDefinition creates a new package definition.
 func NewPackageDefinition[TA any, VA any](modules []PackageDefinitionModule[TA, VA]) PackageDefinition[TA, VA] {

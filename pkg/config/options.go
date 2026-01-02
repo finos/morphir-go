@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/finos/morphir-go/pkg/tooling/internal/configloader"
+	"github.com/finos/morphir-go/pkg/config/internal/configloader"
 )
 
 // Option is a functional option for configuring the Load function.

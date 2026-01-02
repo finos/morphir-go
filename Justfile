@@ -200,18 +200,8 @@ setup:
     @echo "Run 'just build-dev' to build the development version."
 
 # Run CI checks (format, build, test, lint)
-ci-check:
-    @OS=`./scripts/detect-os.sh`; \
-    if [ "$$OS" = "windows" ]; then \
-        if command -v pwsh >/dev/null 2>&1; then \
-            PS="pwsh"; \
-        else \
-            PS="powershell"; \
-        fi; \
-        $$PS -ExecutionPolicy Bypass -File scripts/ci-check.ps1; \
-    else \
-        ./scripts/ci-check.sh; \
-    fi
+ci-check: fmt-check verify test lint
+    @echo "✓ All CI checks passed!"
 
 # Validate GoReleaser configuration
 goreleaser-check:

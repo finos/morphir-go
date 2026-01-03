@@ -57,7 +57,8 @@ fetch_ir_test_files() {
     if [ -d "$SRC_DIR" ]; then
         echo "Copying IR test files..."
         mkdir -p "$DEST_DIR"
-        cp "$SRC_DIR"/*.json "$DEST_DIR/"
+        # Only copy *-ir.json files, not *-result.json files
+        cp "$SRC_DIR"/*-ir.json "$DEST_DIR/"
         echo "Copied IR test files to: $DEST_DIR"
         ls -la "$DEST_DIR"
     else
@@ -182,8 +183,6 @@ Pre-built IR test files from [finos/morphir-elm](https://github.com/finos/morphi
 - `simpleTypeTree-ir.json` - Simple type trees
 - `simpleValueTree-ir.json` - Simple value trees
 - `tupleType-ir.json` - Tuple type handling
-
-Each `-ir.json` file has a corresponding `-result.json` with expected output.
 
 ### morphir-elm/reference-model/
 (Optional) Full reference model IR generated from morphir-elm using `morphir-elm make`.

@@ -19,6 +19,9 @@ type Result struct {
 	Version int      `json:"version"`
 	Errors  []string `json:"errors,omitempty"`
 	Path    string   `json:"path"`
+	// RawData contains the parsed IR data for context extraction in reports.
+	// This is not serialized to JSON output.
+	RawData any `json:"-"`
 }
 
 // Options configures the validation behavior.
@@ -119,6 +122,7 @@ func ValidateBytes(data []byte, sourcePath string, opts Options) (*Result, error
 			Version: version,
 			Path:    sourcePath,
 			Errors:  validationErrors,
+			RawData: irData,
 		}, nil
 	}
 
@@ -126,6 +130,7 @@ func ValidateBytes(data []byte, sourcePath string, opts Options) (*Result, error
 		Valid:   true,
 		Version: version,
 		Path:    sourcePath,
+		RawData: irData,
 	}, nil
 }
 

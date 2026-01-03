@@ -173,6 +173,9 @@ func (g *MarkdownGenerator) writeErrorAnalysis(sb *strings.Builder, result *vali
 func (g *MarkdownGenerator) writeDetailedErrors(sb *strings.Builder, result *validation.Result) {
 	sb.WriteString("### Detailed Errors\n\n")
 
+	// Create context extractor for showing JSON snippets
+	extractor := DefaultContextExtractor()
+
 	for i, errStr := range result.Errors {
 		sb.WriteString(fmt.Sprintf("#### Error %d\n\n", i+1))
 
@@ -200,6 +203,38 @@ func (g *MarkdownGenerator) writeDetailedErrors(sb *strings.Builder, result *val
 			}
 			if p.Actual != "" {
 				sb.WriteString(fmt.Sprintf("- Actual: `%s`\n", p.Actual))
+			}
+
+			// Extract and show JSON context if we have raw data
+			if result.RawData != nil && p.Path != "" && p.Path != "/" {
+				// Get the parent context to show surrounding structure
+				parentContext := extractor.ExtractContextWithParent(result.RawData, p.Path)
+
+				// Also try to get the Name/Path value for friendly display
+				parentPath := getParentPath(p.Path)
+				parentValue := extractor.NavigateToPath(result.RawData, parentPath)
+
+				// If the parent is a Name (array of strings), show its friendly representation
+				if parentValue != nil && IsNameArray(parentValue) {
+					friendlyName := FormatMorphirName(parentValue)
+					if friendlyName != "" {
+						sb.WriteString(fmt.Sprintf("\n**Name:** `%s`\n", friendlyName))
+					}
+				} else if parentValue != nil && IsPathArray(parentValue) {
+					// If it's a Path (array of Names), show its friendly representation
+					friendlyPath := FormatMorphirPath(parentValue)
+					if friendlyPath != "" {
+						sb.WriteString(fmt.Sprintf("\n**Full Path:** `%s`\n", friendlyPath))
+					}
+				}
+
+				if parentContext != "" {
+					sb.WriteString("\n**Context:**\n\n")
+					sb.WriteString("```json\n")
+					sb.WriteString(fmt.Sprintf("// At: %s\n", p.Path))
+					sb.WriteString(parentContext)
+					sb.WriteString("\n```\n")
+				}
 			}
 
 			if p.Suggestion != "" {

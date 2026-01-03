@@ -64,6 +64,13 @@ Feature: Validate CLI command with real IR fixtures
       And the output should contain "Error Analysis"
       And the output should contain "Recommendations"
 
+    Scenario: Markdown report includes JSON context for errors
+      When I run morphir validate on fixture "multilevelModules-ir.json" with --report markdown
+      Then the command should fail
+      And the output should contain "**Context:**"
+      And the output should contain "```json"
+      And the output should contain "// At:"
+
   Rule: Error handling
 
     Scenario: Validate non-existent file

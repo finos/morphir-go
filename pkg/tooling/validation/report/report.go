@@ -52,8 +52,15 @@ func parseValidationError(errStr string) []ParsedError {
 
 	lines := strings.Split(errStr, "\n")
 	for _, line := range lines {
+		// Remove leading dashes, whitespace, and indentation but preserve the content
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "-") {
+		// Remove multiple leading "- " for nested errors
+		for strings.HasPrefix(line, "- ") {
+			line = strings.TrimPrefix(line, "- ")
+			line = strings.TrimSpace(line)
+		}
+
+		if line == "" {
 			continue
 		}
 
@@ -61,6 +68,11 @@ func parseValidationError(errStr string) []ParsedError {
 		if len(matches) >= 3 {
 			path := matches[1]
 			message := matches[2]
+
+			// Skip intermediate "validation failed" messages - we want the leaf errors
+			if message == "validation failed" {
+				continue
+			}
 
 			parsed := ParsedError{
 				Path:    path,
@@ -81,6 +93,14 @@ func parseValidationError(errStr string) []ParsedError {
 				parts := strings.SplitN(message, "want ", 2)
 				if len(parts) == 2 {
 					parsed.Expected = strings.TrimSpace(parts[1])
+				}
+			}
+			if strings.Contains(message, "does not match pattern") {
+				// Extract the pattern from messages like "'2052' does not match pattern '^[a-z][a-z0-9]*$'"
+				patternMatch := regexp.MustCompile(`'([^']+)' does not match pattern '([^']+)'`).FindStringSubmatch(message)
+				if len(patternMatch) >= 3 {
+					parsed.Actual = patternMatch[1]
+					parsed.Expected = "pattern " + patternMatch[2]
 				}
 			}
 
@@ -147,33 +167,17 @@ func generateSuggestion(err ParsedError) string {
 }
 
 // explainJSONPath provides a human-readable explanation of a JSON path.
+// It understands the Morphir IR structure to provide meaningful descriptions.
 func explainJSONPath(path string) string {
 	parts := strings.Split(strings.TrimPrefix(path, "/"), "/")
 
 	var explanations []string
+	context := &pathContext{}
+
 	for i, part := range parts {
-		switch part {
-		case "distribution":
-			explanations = append(explanations, "the distribution")
-		case "modules":
-			explanations = append(explanations, "modules list")
-		case "types":
-			explanations = append(explanations, "type definitions")
-		case "values":
-			explanations = append(explanations, "value definitions")
-		case "value":
-			explanations = append(explanations, "value specification")
-		case "body":
-			explanations = append(explanations, "function body")
-		case "doc":
-			explanations = append(explanations, "documentation field")
-		default:
-			// Check if it's a numeric index
-			if isNumeric(part) {
-				if i > 0 && i < len(parts) {
-					explanations = append(explanations, fmt.Sprintf("element %s", part))
-				}
-			}
+		explanation := context.explainPart(part, i, parts)
+		if explanation != "" {
+			explanations = append(explanations, explanation)
 		}
 	}
 
@@ -182,6 +186,165 @@ func explainJSONPath(path string) string {
 	}
 
 	return strings.Join(explanations, " → ")
+}
+
+// pathContext tracks the semantic context while parsing a JSON path.
+type pathContext struct {
+	inDistribution bool
+	inModules      bool
+	inModuleEntry  bool
+	inModuleName   bool
+	inModuleDef    bool
+	inTypes        bool
+	inValues       bool
+	inTypeEntry    bool
+	inValueEntry   bool
+	depth          int
+}
+
+// explainPart returns a human-readable explanation for a single path component.
+func (ctx *pathContext) explainPart(part string, idx int, parts []string) string {
+	// Handle named keys
+	switch part {
+	case "distribution":
+		ctx.inDistribution = true
+		return "Distribution"
+
+	case "modules":
+		ctx.inModules = true
+		return "modules"
+
+	case "types":
+		ctx.inTypes = true
+		return "type definitions"
+
+	case "values":
+		ctx.inValues = true
+		return "value definitions"
+
+	case "value":
+		return "value"
+
+	case "body":
+		return "function body"
+
+	case "doc":
+		return "documentation"
+
+	case "inputTypes":
+		return "input parameters"
+
+	case "outputType":
+		return "output type"
+
+	case "access":
+		return "access control"
+
+	case "inputs":
+		return "inputs"
+
+	case "output":
+		return "output"
+
+	case "tpe":
+		return "type"
+
+	case "name":
+		return "name"
+	}
+
+	// Handle numeric indices based on context
+	if isNumeric(part) {
+		return ctx.explainNumericIndex(part, idx, parts)
+	}
+
+	return ""
+}
+
+// explainNumericIndex provides meaningful descriptions for array indices.
+func (ctx *pathContext) explainNumericIndex(part string, idx int, parts []string) string {
+	index := part
+
+	// Distribution array: ["Library", PackageName, Dependencies, PackageDefinition]
+	if ctx.inDistribution && !ctx.inModules && !ctx.inTypes && !ctx.inValues {
+		switch part {
+		case "0":
+			return "type tag"
+		case "1":
+			return "Package Name"
+		case "2":
+			return "Dependencies"
+		case "3":
+			return "Package Definition"
+		}
+	}
+
+	// Module entry: [ModuleName, AccessControlled<ModuleDefinition>]
+	if ctx.inModules {
+		ctx.depth++
+
+		// First numeric after "modules" is module index
+		if ctx.depth == 1 {
+			ctx.inModuleEntry = true
+			return fmt.Sprintf("module #%s", index)
+		}
+		// Second numeric (depth 2) is [0]=ModuleName, [1]=ModuleDefinition
+		if ctx.depth == 2 && ctx.inModuleEntry {
+			switch part {
+			case "0":
+				ctx.inModuleName = true
+				return "Module Name (Path)"
+			case "1":
+				ctx.inModuleDef = true
+				return "Module Definition"
+			}
+		}
+		// Within Module Name: Path of Names, each Name is array of strings
+		if ctx.inModuleName {
+			if ctx.depth == 3 {
+				return fmt.Sprintf("Name part #%s", index)
+			}
+			if ctx.depth >= 4 {
+				return fmt.Sprintf("segment #%s (must be lowercase)", index)
+			}
+		}
+	}
+
+	// Type entry: [Name, AccessControlled<TypeDefinition>]
+	if ctx.inTypes {
+		ctx.depth++
+		if ctx.depth == 1 {
+			ctx.inTypeEntry = true
+			return fmt.Sprintf("type #%s", index)
+		}
+		if ctx.depth == 2 {
+			switch part {
+			case "0":
+				return "Type Name"
+			case "1":
+				return "Type Definition"
+			}
+		}
+	}
+
+	// Value entry: [Name, AccessControlled<ValueDefinition>]
+	if ctx.inValues {
+		ctx.depth++
+		if ctx.depth == 1 {
+			ctx.inValueEntry = true
+			return fmt.Sprintf("value #%s", index)
+		}
+		if ctx.depth == 2 {
+			switch part {
+			case "0":
+				return "Value Name"
+			case "1":
+				return "Value Definition"
+			}
+		}
+	}
+
+	return fmt.Sprintf("element #%s", index)
 }
 
 func isNumeric(s string) bool {

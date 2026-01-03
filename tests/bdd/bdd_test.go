@@ -58,6 +58,7 @@ func TestFeatures(t *testing.T) {
 			steps.RegisterConfigSteps(sc)
 			steps.RegisterWorkspaceSteps(sc)
 			steps.RegisterExampleSteps(sc)
+			steps.RegisterCLISteps(sc)
 		},
 		Options: &godog.Options{
 			Format:   "pretty",

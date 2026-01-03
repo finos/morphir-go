@@ -2,16 +2,19 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/finos/morphir-go/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/tooling/validation/report"
 	"github.com/spf13/cobra"
 )
 
 var (
 	validateVersion int
 	validateJSON    bool
+	validateReport  string
 )
 
 var validateCmd = &cobra.Command{
@@ -24,7 +27,10 @@ searches for morphir.ir.json within it. If no path is provided, validates the cu
 directory.
 
 The format version is auto-detected from the formatVersion field in the IR file.
-Use --version to force validation against a specific schema version.`,
+Use --version to force validation against a specific schema version.
+
+Use --report to generate a detailed validation report that explains any errors
+and provides suggestions for fixing them.`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: runValidate,
 }
@@ -32,6 +38,7 @@ Use --version to force validation against a specific schema version.`,
 func init() {
 	validateCmd.Flags().IntVar(&validateVersion, "version", 0, "Schema version to validate against (1, 2, or 3). Auto-detects if not specified.")
 	validateCmd.Flags().BoolVar(&validateJSON, "json", false, "Output result as JSON")
+	validateCmd.Flags().StringVar(&validateReport, "report", "", "Generate a detailed report (format: markdown). Output to stdout or specify a file path.")
 }
 
 // runValidate executes the validate command
@@ -57,10 +64,39 @@ func runValidate(cmd *cobra.Command, args []string) error {
 	}
 
 	// Output result
+	if validateReport != "" {
+		return outputValidationReport(cmd, result)
+	}
 	if validateJSON {
 		return outputValidationJSON(cmd, result)
 	}
 	return outputValidationText(cmd, result)
+}
+
+func outputValidationReport(cmd *cobra.Command, result *validation.Result) error {
+	gen := report.NewGenerator(report.FormatMarkdown)
+	reportContent := gen.Generate(result)
+
+	// Determine output destination
+	if validateReport == "markdown" || validateReport == "md" {
+		// Output to stdout
+		fmt.Fprint(cmd.OutOrStdout(), reportContent)
+	} else {
+		// Treat as file path
+		reportPath := validateReport
+		if !strings.HasSuffix(reportPath, ".md") {
+			reportPath += ".md"
+		}
+		if err := os.WriteFile(reportPath, []byte(reportContent), 0644); err != nil {
+			return fmt.Errorf("failed to write report: %w", err)
+		}
+		fmt.Fprintf(cmd.ErrOrStderr(), "Report written to %s\n", reportPath)
+	}
+
+	if !result.Valid {
+		return fmt.Errorf("validation failed with %d error(s)", len(result.Errors))
+	}
+	return nil
 }
 
 func outputValidationJSON(cmd *cobra.Command, result *validation.Result) error {

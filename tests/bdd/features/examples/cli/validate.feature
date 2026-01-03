@@ -47,6 +47,23 @@ Feature: Validate CLI command with real IR fixtures
       And the JSON output should have "valid" equal to false
       And the JSON output should have "version" equal to 3
 
+  Rule: Markdown report generation
+
+    Scenario: Generate markdown report for valid file
+      When I run morphir validate on fixture "base-ir.json" with --report markdown
+      Then the command should succeed
+      And the output should contain "# Morphir IR Validation Report"
+      And the output should contain "Overall Status: ALL VALID"
+      And the output should contain "Files Validated"
+
+    Scenario: Generate markdown report for invalid file
+      When I run morphir validate on fixture "multilevelModules-ir.json" with --report markdown
+      Then the command should fail
+      And the output should contain "# Morphir IR Validation Report"
+      And the output should contain "VALIDATION ERRORS FOUND"
+      And the output should contain "Error Analysis"
+      And the output should contain "Recommendations"
+
   Rule: Error handling
 
     Scenario: Validate non-existent file

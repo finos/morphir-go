@@ -121,6 +121,7 @@ func RegisterCLISteps(sc *godog.ScenarioContext) {
 	sc.Step(`^I run morphir validate$`, iRunMorphirValidateNoArgs)
 	sc.Step(`^I run morphir validate on fixture "([^"]*)"$`, iRunMorphirValidateOnFixture)
 	sc.Step(`^I run morphir validate on fixture "([^"]*)" with --json$`, iRunMorphirValidateOnFixtureWithJSON)
+	sc.Step(`^I run morphir validate on fixture "([^"]*)" with --report markdown$`, iRunMorphirValidateOnFixtureWithReportMarkdown)
 
 	// Assertions - exit code
 	sc.Step(`^the command should succeed$`, theCommandShouldSucceed)
@@ -250,6 +251,16 @@ func iRunMorphirValidateOnFixtureWithJSON(ctx context.Context, fixture string) e
 
 	fixturePath := getIRFixturePath(fixture)
 	return runMorphirCommand(ctc, "validate", fixturePath, "--json")
+}
+
+func iRunMorphirValidateOnFixtureWithReportMarkdown(ctx context.Context, fixture string) error {
+	ctc, err := GetCLITestContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	fixturePath := getIRFixturePath(fixture)
+	return runMorphirCommand(ctc, "validate", fixturePath, "--report", "markdown")
 }
 
 // getIRFixturePath returns the absolute path to an IR fixture file.

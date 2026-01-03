@@ -1,6 +1,15 @@
 /beads.db
 /beads.db-shm
 /beads.db-wal
+/*.db?*
 /.local_version
 /daemon.log
 /daemon.lock
+/beads.base.jsonl
+/beads.left.jsonl
+/beads.right.jsonl
+/beads.base.meta.json
+/beads.left.meta.json
+/beads.right.meta.json
+/redirect
+/last-touched

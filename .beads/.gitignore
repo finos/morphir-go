@@ -5,6 +5,7 @@
 /.local_version
 /daemon.log
 /daemon.lock
+/daemon.pid
 /beads.base.jsonl
 /beads.left.jsonl
 /beads.right.jsonl

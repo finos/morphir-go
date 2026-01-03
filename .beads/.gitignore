@@ -1,0 +1,6 @@
+/beads.db
+/beads.db-shm
+/beads.db-wal
+/.local_version
+/daemon.log
+/daemon.lock

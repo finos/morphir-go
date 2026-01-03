@@ -15,10 +15,10 @@ import (
 
 // TestSpec represents the test.yaml specification for an example project.
 type TestSpec struct {
-	Description string              `yaml:"description"`
-	Workspace   WorkspaceExpect     `yaml:"workspace"`
-	Validate    *ValidateExpect     `yaml:"validate,omitempty"`
-	CLI         *CLIExpect          `yaml:"cli,omitempty"`
+	Description string          `yaml:"description"`
+	Workspace   WorkspaceExpect `yaml:"workspace"`
+	Validate    *ValidateExpect `yaml:"validate,omitempty"`
+	CLI         *CLIExpect      `yaml:"cli,omitempty"`
 }
 
 // WorkspaceExpect defines expectations for workspace loading.

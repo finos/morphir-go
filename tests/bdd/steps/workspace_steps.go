@@ -41,6 +41,7 @@ type MemberResult struct {
 	ModulePrefix   string
 	ExposedModules []string
 	ConfigFormat   string
+	Version        string
 }
 
 // workspaceContextKey is used to store WorkspaceTestContext in context.Context.
@@ -144,6 +145,18 @@ func RegisterWorkspaceSteps(sc *godog.ScenarioContext) {
 
 	// Assertion steps - errors
 	sc.Step(`^the workspace should have (\d+) loading errors$`, theWorkspaceShouldHaveLoadingErrors)
+
+	// Project list assertions
+	sc.Step(`^the project list should contain "([^"]*)"$`, theProjectListShouldContain)
+	sc.Step(`^the project list should show (\d+) projects$`, theProjectListShouldShowProjects)
+	sc.Step(`^the project list JSON should have (\d+) items$`, theProjectListJSONShouldHaveItems)
+	sc.Step(`^the project list JSON item (\d+) should have "([^"]*)" equal to "([^"]*)"$`, theProjectListJSONItemShouldHaveStringEqual)
+	sc.Step(`^the project list JSON item (\d+) should have "([^"]*)" equal to (true|false)$`, theProjectListJSONItemShouldHaveBoolEqual)
+	sc.Step(`^the project list JSON item (\d+) should have "([^"]*)" equal to (\d+)$`, theProjectListJSONItemShouldHaveIntEqual)
+	sc.Step(`^the project list JSON item (\d+) should have "([^"]*)" with (\d+) elements$`, theProjectListJSONItemShouldHaveArrayElements)
+	sc.Step(`^the filtered project list JSON with properties "([^"]*)" should have (\d+) items$`, theFilteredProjectListJSONShouldHaveItems)
+	sc.Step(`^the filtered project list JSON item (\d+) should have key "([^"]*)"$`, theFilteredProjectListJSONItemShouldHaveKey)
+	sc.Step(`^the filtered project list JSON item (\d+) should not have key "([^"]*)"$`, theFilteredProjectListJSONItemShouldNotHaveKey)
 }
 
 // Step implementations
@@ -462,6 +475,7 @@ func loadWorkspaceForTest(root string) (*LoadedWorkspaceResult, error) {
 				ModulePrefix:   getStringDefault(projectSection, "module_prefix", name),
 				ExposedModules: getStringSliceDefault(projectSection, "exposed_modules", nil),
 				ConfigFormat:   "toml",
+				Version:        getStringDefault(projectSection, "version", ""),
 			}
 		}
 	}
@@ -655,6 +669,7 @@ func loadMemberForTest(path string) (*MemberResult, error) {
 				ModulePrefix:   getStringDefault(projectSection, "module_prefix", name),
 				ExposedModules: getStringSliceDefault(projectSection, "exposed_modules", nil),
 				ConfigFormat:   "toml",
+				Version:        getStringDefault(projectSection, "version", ""),
 			}, nil
 		}
 	}
@@ -675,6 +690,7 @@ func loadMemberForTest(path string) (*MemberResult, error) {
 				ModulePrefix:   getStringDefault(projectSection, "module_prefix", name),
 				ExposedModules: getStringSliceDefault(projectSection, "exposed_modules", nil),
 				ConfigFormat:   "toml",
+				Version:        getStringDefault(projectSection, "version", ""),
 			}, nil
 		}
 	}
@@ -694,6 +710,7 @@ func loadMemberForTest(path string) (*MemberResult, error) {
 			ModulePrefix:   name, // morphir.json uses name as prefix
 			ExposedModules: getStringSliceDefault(result, "exposedModules", nil),
 			ConfigFormat:   "json",
+			Version:        getStringDefault(result, "version", ""),
 		}, nil
 	}
 
@@ -934,4 +951,263 @@ func getStringSliceDefault(m map[string]any, key string, def []string) []string 
 		return result
 	}
 	return def
+}
+
+// Project list step implementations
+
+// getAllProjects returns all projects (root + members) from the loaded workspace.
+func getAllProjects(wtc *WorkspaceTestContext) []MemberResult {
+	var all []MemberResult
+	if wtc.LoadedWorkspace.RootProject != nil {
+		all = append(all, *wtc.LoadedWorkspace.RootProject)
+	}
+	all = append(all, wtc.LoadedWorkspace.Members...)
+	return all
+}
+
+func theProjectListShouldContain(ctx context.Context, name string) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	for _, p := range projects {
+		if p.Name == name {
+			return nil
+		}
+	}
+	return fmt.Errorf("project %q not found in project list", name)
+}
+
+func theProjectListShouldShowProjects(ctx context.Context, count int) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	if len(projects) != count {
+		return fmt.Errorf("expected %d projects, got %d", count, len(projects))
+	}
+	return nil
+}
+
+func theProjectListJSONShouldHaveItems(ctx context.Context, count int) error {
+	return theProjectListShouldShowProjects(ctx, count)
+}
+
+func theProjectListJSONItemShouldHaveStringEqual(ctx context.Context, index int, key, expected string) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	if index >= len(projects) {
+		return fmt.Errorf("index %d out of range (have %d projects)", index, len(projects))
+	}
+	p := projects[index]
+	actual := getProjectProperty(p, key)
+	if actual != expected {
+		return fmt.Errorf("project[%d].%s: expected %q, got %q", index, key, expected, actual)
+	}
+	return nil
+}
+
+func theProjectListJSONItemShouldHaveBoolEqual(ctx context.Context, index int, key, expected string) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	if index >= len(projects) {
+		return fmt.Errorf("index %d out of range (have %d projects)", index, len(projects))
+	}
+	p := projects[index]
+	expectedBool := expected == "true"
+
+	// Special handling for is_root
+	if key == "is_root" {
+		isRoot := wtc.LoadedWorkspace.RootProject != nil && p.Path == wtc.LoadedWorkspace.RootProject.Path
+		if isRoot != expectedBool {
+			return fmt.Errorf("project[%d].%s: expected %v, got %v", index, key, expectedBool, isRoot)
+		}
+		return nil
+	}
+
+	return fmt.Errorf("unknown bool property: %s", key)
+}
+
+func theProjectListJSONItemShouldHaveIntEqual(ctx context.Context, index int, key string, expected int) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	if index >= len(projects) {
+		return fmt.Errorf("index %d out of range (have %d projects)", index, len(projects))
+	}
+	p := projects[index]
+
+	var actual int
+	switch key {
+	case "exposed_modules_count":
+		actual = len(p.ExposedModules)
+	default:
+		return fmt.Errorf("unknown int property: %s", key)
+	}
+
+	if actual != expected {
+		return fmt.Errorf("project[%d].%s: expected %d, got %d", index, key, expected, actual)
+	}
+	return nil
+}
+
+func theProjectListJSONItemShouldHaveArrayElements(ctx context.Context, index int, key string, count int) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+	if index >= len(projects) {
+		return fmt.Errorf("index %d out of range (have %d projects)", index, len(projects))
+	}
+	p := projects[index]
+
+	var actual int
+	switch key {
+	case "exposed_modules":
+		actual = len(p.ExposedModules)
+	default:
+		return fmt.Errorf("unknown array property: %s", key)
+	}
+
+	if actual != count {
+		return fmt.Errorf("project[%d].%s: expected %d elements, got %d", index, key, count, actual)
+	}
+	return nil
+}
+
+// FilteredProjectList holds state for filtered property tests
+type FilteredProjectList struct {
+	Projects   []map[string]any
+	Properties []string
+}
+
+var filteredProjectList *FilteredProjectList
+
+func theFilteredProjectListJSONShouldHaveItems(ctx context.Context, properties string, count int) error {
+	wtc, err := GetWorkspaceTestContext(ctx)
+	if err != nil {
+		return err
+	}
+	projects := getAllProjects(wtc)
+
+	// Parse properties
+	var props []string
+	for _, p := range splitByComma(properties) {
+		props = append(props, trimSpace(p))
+	}
+
+	// Build filtered project maps
+	filteredProjectList = &FilteredProjectList{
+		Projects:   make([]map[string]any, 0, len(projects)),
+		Properties: props,
+	}
+
+	for i, p := range projects {
+		isRoot := wtc.LoadedWorkspace.RootProject != nil && p.Path == wtc.LoadedWorkspace.RootProject.Path
+		m := buildFilteredProjectMap(p, isRoot, props)
+		filteredProjectList.Projects = append(filteredProjectList.Projects, m)
+		_ = i
+	}
+
+	if len(filteredProjectList.Projects) != count {
+		return fmt.Errorf("expected %d projects, got %d", count, len(filteredProjectList.Projects))
+	}
+	return nil
+}
+
+func theFilteredProjectListJSONItemShouldHaveKey(ctx context.Context, index int, key string) error {
+	if filteredProjectList == nil {
+		return fmt.Errorf("no filtered project list (call theFilteredProjectListJSONShouldHaveItems first)")
+	}
+	if index >= len(filteredProjectList.Projects) {
+		return fmt.Errorf("index %d out of range", index)
+	}
+	if _, ok := filteredProjectList.Projects[index][key]; !ok {
+		return fmt.Errorf("project[%d] does not have key %q", index, key)
+	}
+	return nil
+}
+
+func theFilteredProjectListJSONItemShouldNotHaveKey(ctx context.Context, index int, key string) error {
+	if filteredProjectList == nil {
+		return fmt.Errorf("no filtered project list (call theFilteredProjectListJSONShouldHaveItems first)")
+	}
+	if index >= len(filteredProjectList.Projects) {
+		return fmt.Errorf("index %d out of range", index)
+	}
+	if _, ok := filteredProjectList.Projects[index][key]; ok {
+		return fmt.Errorf("project[%d] unexpectedly has key %q", index, key)
+	}
+	return nil
+}
+
+func getProjectProperty(p MemberResult, key string) string {
+	switch key {
+	case "name":
+		return p.Name
+	case "path":
+		return p.Path
+	case "source_directory":
+		return p.SourceDir
+	case "module_prefix":
+		return p.ModulePrefix
+	case "config_format":
+		return p.ConfigFormat
+	case "version":
+		return p.Version
+	default:
+		return ""
+	}
+}
+
+func buildFilteredProjectMap(p MemberResult, isRoot bool, props []string) map[string]any {
+	allProps := map[string]any{
+		"name":                  p.Name,
+		"path":                  p.Path,
+		"config_format":         p.ConfigFormat,
+		"source_directory":      p.SourceDir,
+		"exposed_modules":       p.ExposedModules,
+		"exposed_modules_count": len(p.ExposedModules),
+		"module_prefix":         p.ModulePrefix,
+		"version":               p.Version,
+		"is_root":               isRoot,
+	}
+
+	if len(props) == 0 {
+		return allProps
+	}
+
+	result := make(map[string]any)
+	for _, prop := range props {
+		if val, ok := allProps[prop]; ok {
+			result[prop] = val
+		}
+	}
+	return result
+}
+
+func splitByComma(s string) []string {
+	var result []string
+	start := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == ',' {
+			result = append(result, s[start:i])
+			start = i + 1
+		}
+	}
+	if start < len(s) {
+		result = append(result, s[start:])
+	}
+	return result
 }

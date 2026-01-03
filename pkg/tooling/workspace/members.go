@@ -9,24 +9,18 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 )
 
-// ConfigFilter specifies which config formats are allowed.
-type ConfigFilter int
-
-const (
-	// ConfigFilterAll allows all config formats (toml and json).
-	ConfigFilterAll ConfigFilter = iota
-	// ConfigFilterTOML allows only TOML config format.
-	ConfigFilterTOML
-	// ConfigFilterJSON allows only JSON config format.
-	ConfigFilterJSON
-)
-
 // DiscoverMembers finds all workspace members matching the given glob patterns.
 // It returns absolute paths to directories containing valid project configurations.
 //
+// Pattern types:
+//   - Directory patterns (e.g., "packages/*", "libs/**"): Match directories and look
+//     for default config files (morphir.toml, .morphir/morphir.toml, morphir.json)
+//   - File patterns (e.g., "packages/**/morphir.toml", "configs/*.json"): Match specific
+//     config files directly; the parent directory becomes the member
+//
 // Parameters:
 //   - root: absolute path to workspace root
-//   - patterns: glob patterns for member discovery (e.g., "packages/*", "libs/**")
+//   - patterns: glob patterns for member discovery
 //   - excludes: patterns to exclude from results (e.g., "**/testdata")
 //
 // Returns paths in sorted order for deterministic behavior.
@@ -60,40 +54,16 @@ func collectMembers(root string, patterns, excludes []string) map[string]struct{
 	memberSet := make(map[string]struct{})
 
 	for _, pattern := range patterns {
-		// Parse the pattern to extract config filter and base pattern
-		basePattern, filter := parsePatternFilter(pattern)
-		matches := expandPattern(root, basePattern)
+		matches := expandPattern(root, pattern)
 		for _, match := range matches {
-			if isValidMemberWithFilter(root, match, excludes, filter) {
-				memberSet[match] = struct{}{}
+			memberDir := resolveMemberDir(match)
+			if memberDir != "" && isValidMember(root, memberDir, match, excludes) {
+				memberSet[memberDir] = struct{}{}
 			}
 		}
 	}
 
 	return memberSet
-}
-
-// parsePatternFilter extracts the extension filter from a pattern.
-// Patterns ending with .toml, .json, or .{toml,json} specify config format restrictions.
-// Returns the base pattern (with extension stripped) and the filter to apply.
-func parsePatternFilter(pattern string) (string, ConfigFilter) {
-	// Check for brace expansion patterns like *.{toml,json}
-	if strings.HasSuffix(pattern, ".{toml,json}") || strings.HasSuffix(pattern, ".{json,toml}") {
-		return strings.TrimSuffix(strings.TrimSuffix(pattern, ".{toml,json}"), ".{json,toml}"), ConfigFilterAll
-	}
-
-	// Check for explicit .toml extension
-	if strings.HasSuffix(pattern, ".toml") {
-		return strings.TrimSuffix(pattern, ".toml"), ConfigFilterTOML
-	}
-
-	// Check for explicit .json extension
-	if strings.HasSuffix(pattern, ".json") {
-		return strings.TrimSuffix(pattern, ".json"), ConfigFilterJSON
-	}
-
-	// No extension filter - accept all formats
-	return pattern, ConfigFilterAll
 }
 
 // expandPattern resolves a glob pattern to matching paths.
@@ -106,21 +76,49 @@ func expandPattern(root, pattern string) []string {
 	return matches
 }
 
-// isValidMember checks if a path is a valid workspace member.
-func isValidMember(root, path string, excludes []string) bool {
-	return isValidMemberWithFilter(root, path, excludes, ConfigFilterAll)
+// resolveMemberDir determines the member directory from a glob match.
+// If the match is a file, returns its parent directory.
+// If the match is a directory, returns the directory itself.
+func resolveMemberDir(match string) string {
+	info, err := os.Stat(match)
+	if err != nil {
+		return ""
+	}
+
+	if info.IsDir() {
+		return match
+	}
+
+	// Match is a file - return parent directory
+	return filepath.Dir(match)
 }
 
-// isValidMemberWithFilter checks if a path is a valid workspace member with a config filter.
-func isValidMemberWithFilter(root, path string, excludes []string, filter ConfigFilter) bool {
-	info, err := os.Stat(path)
-	if err != nil || !info.IsDir() {
+// isValidMember checks if a path is a valid workspace member.
+// Parameters:
+//   - root: workspace root for relative path calculation
+//   - memberDir: the directory to validate as a member
+//   - matchedPath: the original glob match (may be a file or directory)
+//   - excludes: patterns to exclude
+func isValidMember(root, memberDir, matchedPath string, excludes []string) bool {
+	if isExcluded(root, memberDir, excludes) {
 		return false
 	}
-	if isExcluded(root, path, excludes) {
-		return false
+
+	// If the match was a file, we trust it exists (glob matched it)
+	// Just verify it's a config file we can use
+	if matchedPath != memberDir {
+		return isConfigFile(matchedPath)
 	}
-	return HasProjectConfigWithFilter(path, filter)
+
+	// Match was a directory - look for default config files
+	return HasProjectConfig(memberDir)
+}
+
+// isConfigFile checks if a file path looks like a config file we can load.
+// Currently supports .toml and .json extensions.
+func isConfigFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".toml" || ext == ".json"
 }
 
 // sortedKeys returns the keys of a map as a sorted slice.
@@ -168,13 +166,7 @@ func isExcluded(root, path string, excludes []string) bool {
 //   - .morphir/morphir.toml with [project] section
 //   - morphir.json (legacy format)
 func HasProjectConfig(dir string) bool {
-	return HasProjectConfigWithFilter(dir, ConfigFilterAll)
-}
-
-// HasProjectConfigWithFilter checks if a directory contains a valid project configuration
-// matching the specified filter.
-func HasProjectConfigWithFilter(dir string, filter ConfigFilter) bool {
-	_, _, found := FindProjectConfigWithFilter(dir, filter)
+	_, _, found := FindProjectConfig(dir)
 	return found
 }
 
@@ -186,42 +178,46 @@ func HasProjectConfigWithFilter(dir string, filter ConfigFilter) bool {
 //  2. .morphir/morphir.toml with [project] section
 //  3. morphir.json (legacy format)
 func FindProjectConfig(dir string) (path string, format string, found bool) {
-	return FindProjectConfigWithFilter(dir, ConfigFilterAll)
-}
-
-// FindProjectConfigWithFilter locates the project configuration file in a directory,
-// respecting the specified format filter.
-// It returns the path, format, and whether it was found.
-//
-// Detection priority:
-//  1. morphir.toml with [project] section (if filter allows TOML)
-//  2. .morphir/morphir.toml with [project] section (if filter allows TOML)
-//  3. morphir.json (legacy format) (if filter allows JSON)
-func FindProjectConfigWithFilter(dir string, filter ConfigFilter) (path string, format string, found bool) {
-	// Check TOML configs if filter allows
-	if filter == ConfigFilterAll || filter == ConfigFilterTOML {
-		// Check morphir.toml first
-		tomlPath := filepath.Join(dir, "morphir.toml")
-		if hasProjectSection(tomlPath) {
-			return tomlPath, "toml", true
-		}
-
-		// Check .morphir/morphir.toml
-		hiddenTomlPath := filepath.Join(dir, ".morphir", "morphir.toml")
-		if hasProjectSection(hiddenTomlPath) {
-			return hiddenTomlPath, "toml", true
-		}
+	// Check morphir.toml first
+	tomlPath := filepath.Join(dir, "morphir.toml")
+	if hasProjectSection(tomlPath) {
+		return tomlPath, "toml", true
 	}
 
-	// Check JSON config if filter allows
-	if filter == ConfigFilterAll || filter == ConfigFilterJSON {
-		jsonPath := filepath.Join(dir, "morphir.json")
-		if isRegularFile(jsonPath) {
-			return jsonPath, "json", true
-		}
+	// Check .morphir/morphir.toml
+	hiddenTomlPath := filepath.Join(dir, ".morphir", "morphir.toml")
+	if hasProjectSection(hiddenTomlPath) {
+		return hiddenTomlPath, "toml", true
+	}
+
+	// Check morphir.json (legacy)
+	jsonPath := filepath.Join(dir, "morphir.json")
+	if isRegularFile(jsonPath) {
+		return jsonPath, "json", true
 	}
 
 	return "", "", false
+}
+
+// FindProjectConfigByPath returns the config format for a specific config file path.
+// This is used when a glob pattern matched a specific file rather than a directory.
+func FindProjectConfigByPath(configPath string) (format string, found bool) {
+	if !isRegularFile(configPath) {
+		return "", false
+	}
+
+	ext := strings.ToLower(filepath.Ext(configPath))
+	switch ext {
+	case ".toml":
+		if hasProjectSection(configPath) {
+			return "toml", true
+		}
+		return "", false
+	case ".json":
+		return "json", true
+	default:
+		return "", false
+	}
 }
 
 // hasProjectSection checks if a TOML file exists and contains a [project] section.

@@ -56,6 +56,13 @@ type ProjectListExpect struct {
 	Count int `yaml:"count"`
 }
 
+// DiscoveredExample represents an example project discovered in the examples/ directory.
+type DiscoveredExample struct {
+	Name string
+	Path string
+	Spec *TestSpec
+}
+
 // ExampleTestContext holds state for example-based test scenarios.
 type ExampleTestContext struct {
 	// TempDir is the temporary directory containing the copied example.
@@ -72,6 +79,20 @@ type ExampleTestContext struct {
 
 	// LastError holds the last error encountered.
 	LastError error
+
+	// DiscoveredExamples holds all discovered examples (for discovery-based testing).
+	DiscoveredExamples []DiscoveredExample
+
+	// TestResults holds results from testing multiple examples.
+	TestResults []ExampleTestResult
+}
+
+// ExampleTestResult holds the result of testing a single example.
+type ExampleTestResult struct {
+	Name    string
+	Passed  bool
+	Error   error
+	Details string
 }
 
 // exampleContextKey is used to store ExampleTestContext in context.Context.
@@ -110,6 +131,8 @@ func (etc *ExampleTestContext) Reset() {
 	etc.Spec = nil
 	etc.LoadedWorkspace = nil
 	etc.LastError = nil
+	etc.DiscoveredExamples = nil
+	etc.TestResults = nil
 }
 
 // RegisterExampleSteps registers all example-related step definitions.
@@ -125,6 +148,11 @@ func RegisterExampleSteps(sc *godog.ScenarioContext) {
 	sc.Step(`^the workspace loading expectation should pass$`, workspaceLoadingExpectationShouldPass)
 	sc.Step(`^the root project expectations should pass$`, rootProjectExpectationsShouldPass)
 	sc.Step(`^the member expectations should pass$`, memberExpectationsShouldPass)
+
+	// Discovery-based testing steps
+	sc.Step(`^all discovered example projects$`, allDiscoveredExampleProjects)
+	sc.Step(`^I test each example against its workspace expectations$`, iTestEachExampleAgainstWorkspaceExpectations)
+	sc.Step(`^all examples should pass their workspace expectations$`, allExamplesShouldPassWorkspaceExpectations)
 }
 
 // getRepoRoot returns the root of the repository.
@@ -402,4 +430,215 @@ func checkProjectExpectations(prefix string, expected ProjectExpect, actual Memb
 	}
 
 	return nil
+}
+
+// discoverExamples finds all example projects with test.yaml files.
+func discoverExamples() ([]DiscoveredExample, error) {
+	examplesDir := filepath.Join(getRepoRoot(), "examples")
+
+	entries, err := os.ReadDir(examplesDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read examples directory: %w", err)
+	}
+
+	var discovered []DiscoveredExample
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		examplePath := filepath.Join(examplesDir, entry.Name())
+		specPath := filepath.Join(examplePath, "test.yaml")
+
+		// Check if test.yaml exists
+		if _, err := os.Stat(specPath); os.IsNotExist(err) {
+			continue
+		}
+
+		// Load the spec
+		spec, err := loadTestSpec(specPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load test.yaml for %q: %w", entry.Name(), err)
+		}
+
+		discovered = append(discovered, DiscoveredExample{
+			Name: entry.Name(),
+			Path: examplePath,
+			Spec: spec,
+		})
+	}
+
+	// Sort by name for deterministic ordering
+	sort.Slice(discovered, func(i, j int) bool {
+		return discovered[i].Name < discovered[j].Name
+	})
+
+	return discovered, nil
+}
+
+// allDiscoveredExampleProjects discovers all example projects and stores them in context.
+func allDiscoveredExampleProjects(ctx context.Context) (context.Context, error) {
+	etc := NewExampleTestContext()
+
+	discovered, err := discoverExamples()
+	if err != nil {
+		return ctx, err
+	}
+
+	if len(discovered) == 0 {
+		return ctx, fmt.Errorf("no example projects found with test.yaml files")
+	}
+
+	etc.DiscoveredExamples = discovered
+	return WithExampleTestContext(ctx, etc), nil
+}
+
+// iTestEachExampleAgainstWorkspaceExpectations tests each discovered example.
+func iTestEachExampleAgainstWorkspaceExpectations(ctx context.Context) (context.Context, error) {
+	etc, err := GetExampleTestContext(ctx)
+	if err != nil {
+		return ctx, err
+	}
+
+	var results []ExampleTestResult
+
+	for _, example := range etc.DiscoveredExamples {
+		result := testExampleWorkspace(example)
+		results = append(results, result)
+	}
+
+	etc.TestResults = results
+	return ctx, nil
+}
+
+// testExampleWorkspace tests a single example's workspace expectations.
+func testExampleWorkspace(example DiscoveredExample) ExampleTestResult {
+	result := ExampleTestResult{
+		Name:   example.Name,
+		Passed: false,
+	}
+
+	// Create temp directory
+	tempDir, err := os.MkdirTemp("", "morphir-example-test-*")
+	if err != nil {
+		result.Error = fmt.Errorf("failed to create temp dir: %w", err)
+		return result
+	}
+	defer os.RemoveAll(tempDir)
+
+	// Copy example to temp directory
+	if err := copyDir(example.Path, tempDir); err != nil {
+		result.Error = fmt.Errorf("failed to copy example: %w", err)
+		return result
+	}
+
+	// Load workspace
+	wsResult, loadErr := loadWorkspaceForTest(tempDir)
+
+	spec := example.Spec.Workspace
+
+	// Check if workspace should load
+	if spec.Loads {
+		if loadErr != nil {
+			result.Error = fmt.Errorf("expected workspace to load, but got error: %v", loadErr)
+			return result
+		}
+		if wsResult == nil {
+			result.Error = fmt.Errorf("expected workspace to load, but result is nil")
+			return result
+		}
+	}
+
+	// Check has_root_project
+	hasRoot := wsResult != nil && wsResult.RootProject != nil
+	if hasRoot != spec.HasRootProject {
+		result.Error = fmt.Errorf("has_root_project: expected %v, got %v", spec.HasRootProject, hasRoot)
+		return result
+	}
+
+	// Check member_count
+	memberCount := 0
+	if wsResult != nil {
+		memberCount = len(wsResult.Members)
+	}
+	if memberCount != spec.MemberCount {
+		result.Error = fmt.Errorf("member_count: expected %d, got %d", spec.MemberCount, memberCount)
+		return result
+	}
+
+	// Check root project expectations
+	if spec.RootProject != nil {
+		if wsResult.RootProject == nil {
+			result.Error = fmt.Errorf("expected root project, but none found")
+			return result
+		}
+		if err := checkProjectExpectations("root_project", *spec.RootProject, *wsResult.RootProject); err != nil {
+			result.Error = err
+			return result
+		}
+	}
+
+	// Check member expectations
+	if len(spec.Members) > 0 {
+		actualMembers := make(map[string]MemberResult)
+		for _, m := range wsResult.Members {
+			actualMembers[m.Name] = m
+		}
+
+		for i, expected := range spec.Members {
+			actual, ok := actualMembers[expected.Name]
+			if !ok {
+				result.Error = fmt.Errorf("members[%d]: expected member %q not found", i, expected.Name)
+				return result
+			}
+
+			if err := checkProjectExpectations(fmt.Sprintf("members[%d]", i), expected, actual); err != nil {
+				result.Error = err
+				return result
+			}
+		}
+	}
+
+	result.Passed = true
+	result.Details = fmt.Sprintf("workspace loaded with %d members, has_root=%v",
+		memberCount, hasRoot)
+	return result
+}
+
+// allExamplesShouldPassWorkspaceExpectations verifies all examples passed.
+func allExamplesShouldPassWorkspaceExpectations(ctx context.Context) error {
+	etc, err := GetExampleTestContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var failures []string
+	var passed int
+
+	for _, result := range etc.TestResults {
+		if result.Passed {
+			passed++
+		} else {
+			failures = append(failures, fmt.Sprintf("  - %s: %v", result.Name, result.Error))
+		}
+	}
+
+	if len(failures) > 0 {
+		return fmt.Errorf("%d/%d examples failed:\n%s",
+			len(failures), len(etc.TestResults), joinLines(failures))
+	}
+
+	return nil
+}
+
+// joinLines joins strings with newlines.
+func joinLines(lines []string) string {
+	result := ""
+	for i, line := range lines {
+		if i > 0 {
+			result += "\n"
+		}
+		result += line
+	}
+	return result
 }

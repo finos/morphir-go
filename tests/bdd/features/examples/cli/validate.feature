@@ -14,13 +14,14 @@ Feature: Validate CLI command with real IR fixtures
       And the output should contain "VALID"
 
       Examples:
-        | fixture       |
-        | base-ir.json  |
+        | fixture                    |
+        | base-ir.json               |
+        | multilevelModules-ir.json  |
 
   Rule: Invalid IR files report schema violations
 
     # These fixtures have structures that don't match our strict JSON schema.
-    # The validator correctly identifies them as invalid.
+    # The validator correctly identifies them as invalid due to IR structure differences.
 
     Scenario Outline: Validate <fixture> reports schema errors
       When I run morphir validate on fixture "<fixture>"
@@ -30,7 +31,6 @@ Feature: Validate CLI command with real IR fixtures
       Examples:
         | fixture                    | description                      |
         | listType-ir.json           | Complex value definitions        |
-        | multilevelModules-ir.json  | Module naming pattern mismatch   |
         | simpleTypeTree-ir.json     | Type definition structure        |
 
   Rule: JSON output format
@@ -57,7 +57,7 @@ Feature: Validate CLI command with real IR fixtures
       And the output should contain "Files Validated"
 
     Scenario: Generate markdown report for invalid file
-      When I run morphir validate on fixture "multilevelModules-ir.json" with --report markdown
+      When I run morphir validate on fixture "listType-ir.json" with --report markdown
       Then the command should fail
       And the output should contain "# Morphir IR Validation Report"
       And the output should contain "VALIDATION ERRORS FOUND"
@@ -65,7 +65,7 @@ Feature: Validate CLI command with real IR fixtures
       And the output should contain "Recommendations"
 
     Scenario: Markdown report includes JSON context for errors
-      When I run morphir validate on fixture "multilevelModules-ir.json" with --report markdown
+      When I run morphir validate on fixture "listType-ir.json" with --report markdown
       Then the command should fail
       And the output should contain "**Context:**"
       And the output should contain "```json"

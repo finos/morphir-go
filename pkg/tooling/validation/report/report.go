@@ -138,7 +138,7 @@ func generateSuggestion(err ParsedError) string {
 
 	switch {
 	case strings.Contains(msg, "pattern"):
-		return "The value doesn't match the required naming pattern. Check that identifiers use lowercase letters and numbers only."
+		return "The value doesn't match the required naming pattern. Each name part must be either a lowercase word (starting with a letter) or a standalone number."
 
 	case strings.Contains(msg, "oneof failed"):
 		return "The value doesn't match any of the expected type variants. This usually means the IR structure differs from the schema definition."

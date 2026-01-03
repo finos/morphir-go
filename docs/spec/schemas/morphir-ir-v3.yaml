@@ -40,10 +40,12 @@ definitions:
     type: array
     items:
       type: string
-      pattern: "^[a-z][a-z0-9]*$"
+      pattern: "^([a-z][a-z0-9]*|[0-9]+)$"
     minItems: 1
     description: |
       A Name is a list of lowercase words that represents a human-readable identifier.
+      Each word is either a lowercase letter followed by lowercase letters/digits,
+      or a standalone numeric sequence (compatible with morphir-elm word extraction).
       Example: ["value", "in", "u", "s", "d"] can be rendered as valueInUSD or value_in_USD.
   
   Path:

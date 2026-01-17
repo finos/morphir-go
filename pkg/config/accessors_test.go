@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/finos/morphir/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
 )
 
 func TestAccessorCoverage(t *testing.T) {

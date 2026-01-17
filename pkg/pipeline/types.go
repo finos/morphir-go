@@ -3,7 +3,7 @@ package pipeline
 import (
 	"time"
 
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/rs/zerolog"
 )
 

@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	golangpipeline "github.com/finos/morphir/pkg/bindings/golang/pipeline"
-	"github.com/finos/morphir/pkg/models/ir"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	golangpipeline "github.com/finos/morphir-go/pkg/bindings/golang/pipeline"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/spf13/cobra"
 )
 

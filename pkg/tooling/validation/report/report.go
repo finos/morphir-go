@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/finos/morphir/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/tooling/validation"
 )
 
 // Format represents the output format for reports.

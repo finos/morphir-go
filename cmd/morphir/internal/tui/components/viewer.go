@@ -10,8 +10,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/keymap"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/styles"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/keymap"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/styles"
 )
 
 // Viewer displays markdown content with vim-style navigation

@@ -1,11 +1,11 @@
-module github.com/finos/morphir/pkg/toolchain
+module github.com/finos/morphir-go/pkg/toolchain
 
 go 1.25.5
 
 require (
-	github.com/finos/morphir/pkg/config v0.3.3
-	github.com/finos/morphir/pkg/pipeline v0.4.0-alpha.4
-	github.com/finos/morphir/pkg/vfs v0.4.0-alpha.4
+	github.com/finos/morphir-go/pkg/config v0.3.3
+	github.com/finos/morphir-go/pkg/pipeline v0.4.0-alpha.4
+	github.com/finos/morphir-go/pkg/vfs v0.4.0-alpha.4
 	github.com/stretchr/testify v1.11.1
 )
 

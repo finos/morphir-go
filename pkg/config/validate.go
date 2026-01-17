@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/finos/morphir/pkg/config/internal/schema"
+	"github.com/finos/morphir-go/pkg/config/internal/schema"
 )
 
 // ValidationSeverity indicates the severity of a validation issue.

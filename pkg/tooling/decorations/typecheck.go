@@ -3,8 +3,8 @@ package decorations
 import (
 	"fmt"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 // TypeCheckError represents a type checking error.

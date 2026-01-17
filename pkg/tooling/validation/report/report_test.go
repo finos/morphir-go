@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/finos/morphir/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/tooling/validation"
 )
 
 func TestAssignErrorCode(t *testing.T) {

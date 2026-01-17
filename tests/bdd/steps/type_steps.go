@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cucumber/godog"
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // RegisterTypeSteps registers step definitions for type features.

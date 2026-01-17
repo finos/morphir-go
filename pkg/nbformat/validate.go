@@ -1,7 +1,7 @@
 package nbformat
 
 import (
-	"github.com/finos/morphir/pkg/nbformat/internal/schema"
+	"github.com/finos/morphir-go/pkg/nbformat/internal/schema"
 )
 
 // ValidationError represents a validation error.

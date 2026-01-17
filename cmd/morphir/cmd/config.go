@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/finos/morphir/pkg/config"
+	"github.com/finos/morphir-go/pkg/config"
 	"github.com/spf13/cobra"
 )
 

@@ -3,8 +3,8 @@ package configloader
 import (
 	"path/filepath"
 
-	"github.com/finos/morphir/pkg/config/internal/sources"
-	"github.com/finos/morphir/pkg/config/internal/xdg"
+	"github.com/finos/morphir-go/pkg/config/internal/sources"
+	"github.com/finos/morphir-go/pkg/config/internal/xdg"
 )
 
 // Priority constants define the loading order for configuration sources.

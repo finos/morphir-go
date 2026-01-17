@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 func TestNewDecorationValues(t *testing.T) {

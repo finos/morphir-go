@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/finos/morphir/pkg/config"
+	"github.com/finos/morphir-go/pkg/config"
 )
 
 // Project represents a loaded workspace member project.

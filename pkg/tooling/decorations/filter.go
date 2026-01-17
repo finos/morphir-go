@@ -3,8 +3,8 @@ package decorations
 import (
 	"encoding/json"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 // FilterOptions provides options for filtering decorations.

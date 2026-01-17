@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // Executor runs tasks with dependency resolution and hooks.

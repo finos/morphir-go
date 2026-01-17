@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	jsoncodec "github.com/finos/morphir/pkg/models/ir/codec/json"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	jsoncodec "github.com/finos/morphir-go/pkg/models/ir/codec/json"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 func TestValidateDecorationValue_ValidValue(t *testing.T) {

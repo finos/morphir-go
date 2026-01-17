@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // EncodePackageSpecification encodes a package specification to JSON.

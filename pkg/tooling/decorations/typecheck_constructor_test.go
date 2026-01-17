@@ -3,8 +3,8 @@ package decorations
 import (
 	"testing"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 func TestTypeChecker_ConstructorWithArguments(t *testing.T) {

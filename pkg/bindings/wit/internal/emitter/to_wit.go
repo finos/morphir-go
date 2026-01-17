@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
 )
 
 // EmitPackage converts a domain.Package to WIT text format.

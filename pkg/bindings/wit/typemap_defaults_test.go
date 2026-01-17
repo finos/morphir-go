@@ -3,8 +3,8 @@ package wit_test
 import (
 	"testing"
 
-	"github.com/finos/morphir/pkg/bindings/typemap"
-	"github.com/finos/morphir/pkg/bindings/wit"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/wit"
 )
 
 func TestWITDefaults(t *testing.T) {

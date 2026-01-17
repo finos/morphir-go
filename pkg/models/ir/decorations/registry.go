@@ -3,7 +3,7 @@ package decorations
 import (
 	"encoding/json"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // DecorationID is an identifier for a decoration type (e.g., "myDecoration" from morphir.json).

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // Executor executes toolchain tasks.

@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
-	"github.com/finos/morphir/tests/bdd/features"
-	"github.com/finos/morphir/tests/bdd/steps"
-	"github.com/finos/morphir/tests/bdd/testdata"
+	"github.com/finos/morphir-go/tests/bdd/features"
+	"github.com/finos/morphir-go/tests/bdd/steps"
+	"github.com/finos/morphir-go/tests/bdd/testdata"
 )
 
 func TestFeatures(t *testing.T) {

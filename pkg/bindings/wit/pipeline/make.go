@@ -3,10 +3,10 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/finos/morphir/pkg/bindings/wit"
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/bindings/wit"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // NewMakeStep creates the WIT "make" step (WIT → IR).

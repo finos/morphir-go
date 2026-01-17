@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/finos/morphir/cmd/morphir/cmd"
+	"github.com/finos/morphir-go/cmd/morphir/cmd"
 )
 
 func main() {

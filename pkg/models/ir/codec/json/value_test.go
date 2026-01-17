@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // encodeValueUnitAttr wraps encodeUnitAttr to match ValueAttrEncoder signature

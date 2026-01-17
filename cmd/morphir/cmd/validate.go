@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/finos/morphir/cmd/morphir/internal/tui"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/components"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/tooling/markdown"
-	"github.com/finos/morphir/pkg/tooling/validation"
-	"github.com/finos/morphir/pkg/tooling/validation/report"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/components"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/tooling/markdown"
+	"github.com/finos/morphir-go/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/tooling/validation/report"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/spf13/cobra"
 )
 

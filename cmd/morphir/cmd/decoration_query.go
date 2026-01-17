@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"sort"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	jsoncodec "github.com/finos/morphir/pkg/models/ir/codec/json"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
-	"github.com/finos/morphir/pkg/tooling/decorations"
-	"github.com/finos/morphir/pkg/tooling/workspace"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	jsoncodec "github.com/finos/morphir-go/pkg/models/ir/codec/json"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
+	"github.com/finos/morphir-go/pkg/tooling/decorations"
+	"github.com/finos/morphir-go/pkg/tooling/workspace"
 	"github.com/spf13/cobra"
 )
 

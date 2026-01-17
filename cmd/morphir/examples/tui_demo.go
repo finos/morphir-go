@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/finos/morphir/cmd/morphir/internal/tui"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/components"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/components"
 )
 
 func main() {
@@ -232,8 +232,8 @@ Here's a simple example of using the TUI framework:
 ` + "```go\n" + `package main
 
 import (
-    "github.com/finos/morphir/cmd/morphir/internal/tui"
-    "github.com/finos/morphir/cmd/morphir/internal/tui/components"
+    "github.com/finos/morphir-go/cmd/morphir/internal/tui"
+    "github.com/finos/morphir-go/cmd/morphir/internal/tui/components"
 )
 
 func main() {

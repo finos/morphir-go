@@ -1,4 +1,4 @@
-module github.com/finos/morphir/pkg/nbformat
+module github.com/finos/morphir-go/pkg/nbformat
 
 go 1.25.5
 

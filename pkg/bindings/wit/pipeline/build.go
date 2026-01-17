@@ -1,8 +1,8 @@
 package pipeline
 
 import (
-	"github.com/finos/morphir/pkg/models/ir"
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // NewBuildStep creates the WIT "build" step (WIT → IR → WIT).

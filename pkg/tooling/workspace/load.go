@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/finos/morphir/pkg/config"
+	"github.com/finos/morphir-go/pkg/config"
 )
 
 // LoadedWorkspace represents a fully loaded workspace with its configuration

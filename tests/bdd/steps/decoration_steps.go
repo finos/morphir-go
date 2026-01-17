@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/cucumber/godog"
-	"github.com/finos/morphir/pkg/config"
-	"github.com/finos/morphir/pkg/tooling/decorations"
-	"github.com/finos/morphir/pkg/tooling/workspace"
+	"github.com/finos/morphir-go/pkg/config"
+	"github.com/finos/morphir-go/pkg/tooling/decorations"
+	"github.com/finos/morphir-go/pkg/tooling/workspace"
 )
 
 // DecorationTestContext holds state for decoration BDD scenarios.

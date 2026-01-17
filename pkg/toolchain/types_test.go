@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 func createTestVFS() vfs.VFS {

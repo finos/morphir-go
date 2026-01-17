@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 func TestNewNativeFunctionRegistry(t *testing.T) {

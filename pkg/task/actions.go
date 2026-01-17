@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/tooling/validation"
 )
 
 // Built-in action names follow the morphir.* namespace convention.

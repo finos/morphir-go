@@ -7,7 +7,7 @@ package toolchain
 import (
 	"time"
 
-	"github.com/finos/morphir/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/toolchain"
 )
 
 // DefaultVersion is the default morphir-elm version to use.

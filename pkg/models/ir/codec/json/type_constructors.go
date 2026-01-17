@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // EncodeTypeConstructors encodes Morphir type constructors using Morphir-compatible JSON.

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/finos/morphir/pkg/tooling/workspace"
+	"github.com/finos/morphir-go/pkg/tooling/workspace"
 	"github.com/spf13/cobra"
 )
 

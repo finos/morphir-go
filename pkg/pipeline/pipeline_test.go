@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/stretchr/testify/require"
 )
 

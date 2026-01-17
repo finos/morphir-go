@@ -1,8 +1,8 @@
 package wit
 
 import (
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/bindings/wit/internal/adapter"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/internal/adapter"
 	"go.bytecodealliance.org/wit"
 )
 

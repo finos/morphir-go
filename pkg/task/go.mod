@@ -1,0 +1,41 @@
+module github.com/finos/morphir-go/pkg/task
+
+go 1.25.5
+
+require (
+	github.com/finos/morphir-go/pkg/pipeline v0.4.0-alpha.4
+	github.com/finos/morphir-go/pkg/tooling v0.3.3
+	github.com/finos/morphir-go/pkg/vfs v0.4.0-alpha.4
+	github.com/stretchr/testify v1.11.1
+)
+
+require (
+	github.com/bmatcuk/doublestar/v4 v4.9.2 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/finos/morphir-go/pkg/models v0.3.2 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
+	golang.org/x/text v0.24.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
+)
+
+replace (
+github.com/finos/morphir-go/pkg/bindings/golang => ../bindings/golang
+github.com/finos/morphir-go/pkg/bindings/morphir-elm => ../bindings/morphir-elm
+github.com/finos/morphir-go/pkg/bindings/typemap => ../bindings/typemap
+github.com/finos/morphir-go/pkg/bindings/wit => ../bindings/wit
+github.com/finos/morphir-go/pkg/config => ../config
+github.com/finos/morphir-go/pkg/docling-doc => ../docling-doc
+github.com/finos/morphir-go/pkg/logging => ../logging
+github.com/finos/morphir-go/pkg/models => ../models
+github.com/finos/morphir-go/pkg/nbformat => ../nbformat
+github.com/finos/morphir-go/pkg/pipeline => ../pipeline
+github.com/finos/morphir-go/pkg/sdk => ../sdk
+github.com/finos/morphir-go/pkg/task => ../task
+github.com/finos/morphir-go/pkg/toolchain => ../toolchain
+github.com/finos/morphir-go/pkg/tooling => ../tooling
+github.com/finos/morphir-go/pkg/vfs => ../vfs
+)

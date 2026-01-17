@@ -41,7 +41,7 @@ go install github.com/finos/morphir-go/cmd/morphir@latest
 
 **Prerequisites:**
 - **Go 1.25.5** or later ([download](https://golang.org/dl/))
-- **just** - A command runner for build orchestration ([install](https://github.com/casey/just))
+- **mise** - A dev tools manager for reproducible environments ([install](https://mise.jdx.dev/getting-started.html))
 - **PowerShell** (Windows only) - For running build scripts on Windows ([install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell))
 
 **Build steps:**
@@ -52,7 +52,7 @@ git clone https://github.com/finos/morphir-go.git
 cd morphir-go
 
 # Build the CLI application
-just build
+mise run build
 
 # The binary will be in bin/morphir
 ```
@@ -61,7 +61,7 @@ just build
 
 ```sh
 # Build and install to $GOPATH/bin or $GOBIN
-just install
+mise run install
 ```
 
 ### Verify Installation
@@ -163,43 +163,43 @@ Each package is a separate Go module, managed via `go.work` for seamless develop
 
 ## Development Workflow
 
-### Build Orchestration with Just
+### Build Orchestration with mise
 
-We use [`just`](https://github.com/casey/just) for build orchestration. Common commands:
+We use [`mise`](https://mise.jdx.dev) for build orchestration and environment management. Common commands:
 
 ```sh
 # List all available commands
-just
+mise tasks
 
 # Set up development environment (first time setup)
-just setup
+mise run setup
 
 # Build the CLI application
-just build
+mise run build
 
 # Run tests across all modules
-just test
+mise run test
 
 # Format all Go code
-just fmt
+mise run fmt
 
 # Run linters (requires golangci-lint)
-just lint
+mise run lint
 
 # Download dependencies for all modules
-just deps
+mise run deps
 
 # Run go mod tidy for all modules
-just mod-tidy
+mise run mod-tidy
 
 # Clean build artifacts
-just clean
+mise run clean
 
 # Verify all modules build successfully
-just verify
+mise run verify
 
 # Run CI checks (format, build, test, lint)
-just ci-check
+mise run ci-check
 ```
 
 ### Local Development and Testing
@@ -208,12 +208,12 @@ For local development, we recommend using `morphir-dev` to distinguish your deve
 
 ```sh
 # Build the development version
-just build-dev
+mise run build-dev
 
 # The binary will be in bin/morphir-dev
 
 # Run the development version directly
-just run-dev
+mise run run-dev
 
 # Or run it manually
 ./bin/morphir-dev
@@ -226,7 +226,7 @@ just run-dev
 ./bin/morphir-dev
 
 # Install morphir-dev to your system (makes it available in PATH)
-just install-dev
+mise run install-dev
 
 # After installation, you can use morphir-dev from anywhere
 morphir-dev help
@@ -249,7 +249,7 @@ morphir-dev help
 
 2. **Set up the development environment**
    ```sh
-   just setup
+   mise run setup
    ```
 
    This command will:
@@ -257,22 +257,23 @@ morphir-dev help
    - Install npm dependencies (for git hooks)
    - Set up pre-push hooks that run formatting, linting, and tests
 
-   **Prerequisites for `just setup`:**
+   **Prerequisites for `mise run setup`:**
+   - [mise](https://mise.jdx.dev/getting-started.html) - for tool version management
    - [Node.js](https://nodejs.org/) (v16+) - for git hooks via Husky
    - [npm](https://www.npmjs.com/) - comes with Node.js
 
 3. **Build the project**
    ```sh
    # For development, use build-dev
-   just build-dev
+   mise run build-dev
 
    # Or for standard build
-   just build
+   mise run build
    ```
 
 4. **Run tests**
    ```sh
-   just test
+   mise run test
    ```
 
 5. **Test your changes**

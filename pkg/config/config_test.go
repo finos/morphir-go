@@ -467,6 +467,932 @@ func TestNewLoadResult(t *testing.T) {
 	}
 }
 
+// TaskSection Tests
+
+func TestDefaultTasksEmpty(t *testing.T) {
+	cfg := Default()
+
+	tasks := cfg.Tasks()
+	if got := tasks.Len(); got != 0 {
+		t.Errorf("Tasks.Len: want 0, got %d", got)
+	}
+	if got := tasks.Names(); got != nil {
+		t.Errorf("Tasks.Names: want nil, got %v", got)
+	}
+}
+
+func TestTasksSectionGet(t *testing.T) {
+	tasks := TasksSection{
+		definitions: map[string]Task{
+			"build": IntrinsicTask{
+				taskCommon: taskCommon{
+					dependsOn: []string{"setup"},
+				},
+				action: "morphir.pipeline.compile",
+			},
+		},
+	}
+
+	t.Run("existing task", func(t *testing.T) {
+		task, ok := tasks.Get("build")
+		if !ok {
+			t.Fatal("expected task 'build' to exist")
+		}
+		intrinsic, ok := task.(IntrinsicTask)
+		if !ok {
+			t.Fatal("expected IntrinsicTask type")
+		}
+		if intrinsic.Action() != "morphir.pipeline.compile" {
+			t.Errorf("task.Action: want morphir.pipeline.compile, got %q", intrinsic.Action())
+		}
+	})
+
+	t.Run("non-existing task", func(t *testing.T) {
+		_, ok := tasks.Get("nonexistent")
+		if ok {
+			t.Error("expected task 'nonexistent' to not exist")
+		}
+	})
+
+	t.Run("nil definitions", func(t *testing.T) {
+		emptyTasks := TasksSection{definitions: nil}
+		_, ok := emptyTasks.Get("build")
+		if ok {
+			t.Error("expected no tasks in empty section")
+		}
+	})
+}
+
+func TestTasksSectionNames(t *testing.T) {
+	tasks := TasksSection{
+		definitions: map[string]Task{
+			"build": IntrinsicTask{},
+			"test":  IntrinsicTask{},
+			"clean": IntrinsicTask{},
+		},
+	}
+
+	names := tasks.Names()
+	if len(names) != 3 {
+		t.Fatalf("expected 3 names, got %d", len(names))
+	}
+
+	// Names should be present (order may vary due to map iteration)
+	nameSet := make(map[string]bool)
+	for _, name := range names {
+		nameSet[name] = true
+	}
+	for _, expected := range []string{"build", "test", "clean"} {
+		if !nameSet[expected] {
+			t.Errorf("expected name %q to be present", expected)
+		}
+	}
+}
+
+func TestTasksSectionLen(t *testing.T) {
+	t.Run("with tasks", func(t *testing.T) {
+		tasks := TasksSection{
+			definitions: map[string]Task{
+				"build": IntrinsicTask{},
+				"test":  IntrinsicTask{},
+			},
+		}
+		if got := tasks.Len(); got != 2 {
+			t.Errorf("Len: want 2, got %d", got)
+		}
+	})
+
+	t.Run("nil definitions", func(t *testing.T) {
+		tasks := TasksSection{definitions: nil}
+		if got := tasks.Len(); got != 0 {
+			t.Errorf("Len: want 0, got %d", got)
+		}
+	})
+}
+
+func TestCommandTaskAccessors(t *testing.T) {
+	task := CommandTask{
+		taskCommon: taskCommon{
+			dependsOn: []string{"compile"},
+			pre:       []string{"setup"},
+			post:      []string{"cleanup"},
+			inputs:    []string{"workspace:/src/**/*.go"},
+			outputs:   []string{"workspace:/build/**"},
+			params:    map[string]any{"profile": "dev", "verbose": true},
+			env:       map[string]string{"GOFLAGS": "-mod=mod"},
+			mounts:    map[string]string{"workspace": "rw", "config": "ro"},
+		},
+		cmd: []string{"go", "test", "./..."},
+	}
+
+	// Test Cmd
+	cmd := task.Cmd()
+	if len(cmd) != 3 || cmd[0] != "go" || cmd[1] != "test" || cmd[2] != "./..." {
+		t.Errorf("Cmd: want [go test ./...], got %v", cmd)
+	}
+
+	// Test DependsOn
+	deps := task.DependsOn()
+	if len(deps) != 1 || deps[0] != "compile" {
+		t.Errorf("DependsOn: want [compile], got %v", deps)
+	}
+
+	// Test Pre
+	pre := task.Pre()
+	if len(pre) != 1 || pre[0] != "setup" {
+		t.Errorf("Pre: want [setup], got %v", pre)
+	}
+
+	// Test Post
+	post := task.Post()
+	if len(post) != 1 || post[0] != "cleanup" {
+		t.Errorf("Post: want [cleanup], got %v", post)
+	}
+
+	// Test Inputs
+	inputs := task.Inputs()
+	if len(inputs) != 1 || inputs[0] != "workspace:/src/**/*.go" {
+		t.Errorf("Inputs: want [workspace:/src/**/*.go], got %v", inputs)
+	}
+
+	// Test Outputs
+	outputs := task.Outputs()
+	if len(outputs) != 1 || outputs[0] != "workspace:/build/**" {
+		t.Errorf("Outputs: want [workspace:/build/**], got %v", outputs)
+	}
+
+	// Test Params
+	params := task.Params()
+	if params["profile"] != "dev" || params["verbose"] != true {
+		t.Errorf("Params: want {profile:dev, verbose:true}, got %v", params)
+	}
+
+	// Test Env
+	env := task.Env()
+	if env["GOFLAGS"] != "-mod=mod" {
+		t.Errorf("Env: want {GOFLAGS:-mod=mod}, got %v", env)
+	}
+
+	// Test Mounts
+	mounts := task.Mounts()
+	if mounts["workspace"] != "rw" || mounts["config"] != "ro" {
+		t.Errorf("Mounts: want {workspace:rw, config:ro}, got %v", mounts)
+	}
+}
+
+func TestIntrinsicTaskAccessors(t *testing.T) {
+	task := IntrinsicTask{
+		taskCommon: taskCommon{
+			dependsOn: []string{"setup"},
+		},
+		action: "morphir.pipeline.compile",
+	}
+
+	assertString(t, "Action", "morphir.pipeline.compile", task.Action())
+
+	deps := task.DependsOn()
+	if len(deps) != 1 || deps[0] != "setup" {
+		t.Errorf("DependsOn: want [setup], got %v", deps)
+	}
+}
+
+func TestEmptyTaskAccessors(t *testing.T) {
+	t.Run("empty intrinsic task", func(t *testing.T) {
+		task := IntrinsicTask{}
+		if task.Action() != "" {
+			t.Errorf("Action: want empty, got %q", task.Action())
+		}
+		if task.DependsOn() != nil {
+			t.Errorf("DependsOn: want nil, got %v", task.DependsOn())
+		}
+		if task.Pre() != nil {
+			t.Errorf("Pre: want nil, got %v", task.Pre())
+		}
+		if task.Post() != nil {
+			t.Errorf("Post: want nil, got %v", task.Post())
+		}
+		if task.Inputs() != nil {
+			t.Errorf("Inputs: want nil, got %v", task.Inputs())
+		}
+		if task.Outputs() != nil {
+			t.Errorf("Outputs: want nil, got %v", task.Outputs())
+		}
+		if task.Params() != nil {
+			t.Errorf("Params: want nil, got %v", task.Params())
+		}
+		if task.Env() != nil {
+			t.Errorf("Env: want nil, got %v", task.Env())
+		}
+		if task.Mounts() != nil {
+			t.Errorf("Mounts: want nil, got %v", task.Mounts())
+		}
+	})
+
+	t.Run("empty command task", func(t *testing.T) {
+		task := CommandTask{}
+		if task.Cmd() != nil {
+			t.Errorf("Cmd: want nil, got %v", task.Cmd())
+		}
+		if task.DependsOn() != nil {
+			t.Errorf("DependsOn: want nil, got %v", task.DependsOn())
+		}
+	})
+}
+
+func TestTaskDefensiveCopy(t *testing.T) {
+	task := CommandTask{
+		taskCommon: taskCommon{
+			dependsOn: []string{"setup"},
+			pre:       []string{"lint"},
+			post:      []string{"test"},
+			inputs:    []string{"*.go"},
+			outputs:   []string{"./bin/*"},
+			params:    map[string]any{"opt": "value"},
+			env:       map[string]string{"KEY": "value"},
+			mounts:    map[string]string{"src": "ro"},
+		},
+		cmd: []string{"go", "build"},
+	}
+
+	// Modify returned slices
+	task.Cmd()[0] = "mutated"
+	task.DependsOn()[0] = "mutated"
+	task.Pre()[0] = "mutated"
+	task.Post()[0] = "mutated"
+	task.Inputs()[0] = "mutated"
+	task.Outputs()[0] = "mutated"
+
+	// Modify returned maps
+	task.Params()["opt"] = "mutated"
+	task.Env()["KEY"] = "mutated"
+	task.Mounts()["src"] = "mutated"
+
+	// Verify originals are unchanged
+	if task.Cmd()[0] != "go" {
+		t.Error("Cmd defensive copy failed")
+	}
+	if task.DependsOn()[0] != "setup" {
+		t.Error("DependsOn defensive copy failed")
+	}
+	if task.Pre()[0] != "lint" {
+		t.Error("Pre defensive copy failed")
+	}
+	if task.Post()[0] != "test" {
+		t.Error("Post defensive copy failed")
+	}
+	if task.Inputs()[0] != "*.go" {
+		t.Error("Inputs defensive copy failed")
+	}
+	if task.Outputs()[0] != "./bin/*" {
+		t.Error("Outputs defensive copy failed")
+	}
+	if task.Params()["opt"] != "value" {
+		t.Error("Params defensive copy failed")
+	}
+	if task.Env()["KEY"] != "value" {
+		t.Error("Env defensive copy failed")
+	}
+	if task.Mounts()["src"] != "ro" {
+		t.Error("Mounts defensive copy failed")
+	}
+}
+
+func TestFromMapWithTasks(t *testing.T) {
+	m := map[string]any{
+		"tasks": map[string]any{
+			"build": map[string]any{
+				"kind":       "intrinsic",
+				"action":     "morphir.pipeline.compile",
+				"depends_on": []any{"setup"},
+				"inputs":     []any{"workspace:/src/**"},
+				"outputs":    []any{"workspace:/build/**"},
+			},
+			"codegen": map[string]any{
+				"kind": "command",
+				"cmd":  []any{"morphir", "gen", "--target", "Scala"},
+				"env": map[string]any{
+					"GOFLAGS": "-mod=mod",
+				},
+				"mounts": map[string]any{
+					"workspace": "rw",
+					"config":    "ro",
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+	tasks := cfg.Tasks()
+
+	if tasks.Len() != 2 {
+		t.Fatalf("expected 2 tasks, got %d", tasks.Len())
+	}
+
+	// Test build task (intrinsic)
+	build, ok := tasks.Get("build")
+	if !ok {
+		t.Fatal("expected 'build' task to exist")
+	}
+	buildIntrinsic, ok := build.(IntrinsicTask)
+	if !ok {
+		t.Fatalf("build: want IntrinsicTask, got %T", build)
+	}
+	if buildIntrinsic.Action() != "morphir.pipeline.compile" {
+		t.Errorf("build.Action: want morphir.pipeline.compile, got %q", buildIntrinsic.Action())
+	}
+	if deps := build.DependsOn(); len(deps) != 1 || deps[0] != "setup" {
+		t.Errorf("build.DependsOn: want [setup], got %v", deps)
+	}
+
+	// Test codegen task (command)
+	codegen, ok := tasks.Get("codegen")
+	if !ok {
+		t.Fatal("expected 'codegen' task to exist")
+	}
+	codegenCmd, ok := codegen.(CommandTask)
+	if !ok {
+		t.Fatalf("codegen: want CommandTask, got %T", codegen)
+	}
+	cmd := codegenCmd.Cmd()
+	if len(cmd) != 4 || cmd[0] != "morphir" {
+		t.Errorf("codegen.Cmd: want [morphir gen --target Scala], got %v", cmd)
+	}
+	if env := codegen.Env(); env["GOFLAGS"] != "-mod=mod" {
+		t.Errorf("codegen.Env: want GOFLAGS=-mod=mod, got %v", env)
+	}
+	if mounts := codegen.Mounts(); mounts["workspace"] != "rw" {
+		t.Errorf("codegen.Mounts: want workspace=rw, got %v", mounts)
+	}
+}
+
+func TestFromMapTasksWithParams(t *testing.T) {
+	m := map[string]any{
+		"tasks": map[string]any{
+			"compile": map[string]any{
+				"kind":   "intrinsic",
+				"action": "morphir.pipeline.compile",
+				"params": map[string]any{
+					"profile":    "production",
+					"optimize":   true,
+					"max_errors": int64(10),
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+	compile, ok := cfg.Tasks().Get("compile")
+	if !ok {
+		t.Fatal("expected 'compile' task to exist")
+	}
+
+	params := compile.Params()
+	if params["profile"] != "production" {
+		t.Errorf("params.profile: want production, got %v", params["profile"])
+	}
+	if params["optimize"] != true {
+		t.Errorf("params.optimize: want true, got %v", params["optimize"])
+	}
+	if params["max_errors"] != int64(10) {
+		t.Errorf("params.max_errors: want 10, got %v", params["max_errors"])
+	}
+}
+
+func TestFromMapTasksWithPrePost(t *testing.T) {
+	m := map[string]any{
+		"tasks": map[string]any{
+			"build": map[string]any{
+				"kind": "intrinsic",
+				"pre":  []any{"lint", "format"},
+				"post": []any{"test", "deploy"},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+	build, ok := cfg.Tasks().Get("build")
+	if !ok {
+		t.Fatal("expected 'build' task to exist")
+	}
+
+	pre := build.Pre()
+	if len(pre) != 2 || pre[0] != "lint" || pre[1] != "format" {
+		t.Errorf("pre: want [lint format], got %v", pre)
+	}
+
+	post := build.Post()
+	if len(post) != 2 || post[0] != "test" || post[1] != "deploy" {
+		t.Errorf("post: want [test deploy], got %v", post)
+	}
+}
+
+func TestFromMapEmptyTasks(t *testing.T) {
+	m := map[string]any{
+		"tasks": map[string]any{},
+	}
+
+	cfg := FromMap(m)
+	if cfg.Tasks().Len() != 0 {
+		t.Errorf("expected 0 tasks for empty tasks section, got %d", cfg.Tasks().Len())
+	}
+}
+
+// Bindings Section Tests
+
+func TestDefaultBindingsEmpty(t *testing.T) {
+	cfg := Default()
+
+	bindings := cfg.Bindings()
+	if !bindings.IsEmpty() {
+		t.Error("expected default bindings to be empty")
+	}
+	if !bindings.WIT().IsEmpty() {
+		t.Error("expected default WIT bindings to be empty")
+	}
+	if !bindings.Protobuf().IsEmpty() {
+		t.Error("expected default Protobuf bindings to be empty")
+	}
+	if !bindings.JSON().IsEmpty() {
+		t.Error("expected default JSON bindings to be empty")
+	}
+}
+
+func TestFromMapWithBindings(t *testing.T) {
+	m := map[string]any{
+		"bindings": map[string]any{
+			"wit": map[string]any{
+				"primitives": []any{
+					map[string]any{
+						"external":      "u128",
+						"morphir":       "Morphir.SDK:Int:Int128",
+						"bidirectional": true,
+						"priority":      int64(100),
+					},
+				},
+				"containers": []any{
+					map[string]any{
+						"external_pattern": "hashmap",
+						"morphir_pattern":  "Morphir.SDK:Dict:Dict",
+						"type_params":      int64(2),
+						"bidirectional":    true,
+						"priority":         int64(100),
+					},
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+	bindings := cfg.Bindings()
+
+	if bindings.IsEmpty() {
+		t.Error("expected bindings to not be empty")
+	}
+
+	wit := bindings.WIT()
+	if wit.IsEmpty() {
+		t.Error("expected WIT bindings to not be empty")
+	}
+	if len(wit.Primitives) != 1 {
+		t.Errorf("expected 1 primitive, got %d", len(wit.Primitives))
+	}
+	if wit.Primitives[0].ExternalType != "u128" {
+		t.Errorf("expected external=u128, got %s", wit.Primitives[0].ExternalType)
+	}
+	if wit.Primitives[0].MorphirType != "Morphir.SDK:Int:Int128" {
+		t.Errorf("expected morphir=Morphir.SDK:Int:Int128, got %s", wit.Primitives[0].MorphirType)
+	}
+	if wit.Primitives[0].Priority != 100 {
+		t.Errorf("expected priority=100, got %d", wit.Primitives[0].Priority)
+	}
+
+	if len(wit.Containers) != 1 {
+		t.Errorf("expected 1 container, got %d", len(wit.Containers))
+	}
+	if wit.Containers[0].ExternalPattern != "hashmap" {
+		t.Errorf("expected external_pattern=hashmap, got %s", wit.Containers[0].ExternalPattern)
+	}
+	if wit.Containers[0].TypeParamCount != 2 {
+		t.Errorf("expected type_params=2, got %d", wit.Containers[0].TypeParamCount)
+	}
+}
+
+func TestFromMapBindingsEmptySection(t *testing.T) {
+	m := map[string]any{
+		"bindings": map[string]any{},
+	}
+
+	cfg := FromMap(m)
+	if !cfg.Bindings().IsEmpty() {
+		t.Error("expected bindings to be empty for empty bindings section")
+	}
+}
+
+func TestFromMapBindingsMultipleBindingTypes(t *testing.T) {
+	m := map[string]any{
+		"bindings": map[string]any{
+			"wit": map[string]any{
+				"primitives": []any{
+					map[string]any{
+						"external": "u128",
+						"morphir":  "Int128",
+					},
+				},
+			},
+			"protobuf": map[string]any{
+				"primitives": []any{
+					map[string]any{
+						"external": "int32",
+						"morphir":  "Int",
+					},
+				},
+			},
+			"json": map[string]any{
+				"primitives": []any{
+					map[string]any{
+						"external": "number",
+						"morphir":  "Float",
+					},
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+	bindings := cfg.Bindings()
+
+	if bindings.IsEmpty() {
+		t.Error("expected bindings to not be empty")
+	}
+
+	if len(bindings.WIT().Primitives) != 1 {
+		t.Errorf("expected 1 WIT primitive, got %d", len(bindings.WIT().Primitives))
+	}
+	if len(bindings.Protobuf().Primitives) != 1 {
+		t.Errorf("expected 1 Protobuf primitive, got %d", len(bindings.Protobuf().Primitives))
+	}
+	if len(bindings.JSON().Primitives) != 1 {
+		t.Errorf("expected 1 JSON primitive, got %d", len(bindings.JSON().Primitives))
+	}
+}
+
+func TestFromMapNoTasks(t *testing.T) {
+	m := map[string]any{
+		"ir": map[string]any{
+			"format_version": int64(3),
+		},
+	}
+
+	cfg := FromMap(m)
+	if cfg.Tasks().Len() != 0 {
+		t.Errorf("expected 0 tasks when no tasks section, got %d", cfg.Tasks().Len())
+	}
+}
+
+func TestFromMapWithWorkflows(t *testing.T) {
+	cfg := FromMap(map[string]any{
+		"workflows": map[string]any{
+			"build": map[string]any{
+				"description": "Build workflow",
+				"stages": []any{
+					map[string]any{
+						"name":    "compile",
+						"targets": []any{"make"},
+					},
+					map[string]any{
+						"name":     "generate",
+						"targets":  []string{"gen:scala"},
+						"parallel": true,
+					},
+				},
+			},
+		},
+	})
+
+	workflows := cfg.Workflows()
+	if workflows.Len() != 1 {
+		t.Fatalf("expected 1 workflow, got %d", workflows.Len())
+	}
+	build, ok := workflows.Get("build")
+	if !ok {
+		t.Fatal("expected build workflow to be loaded")
+	}
+	if build.Description() != "Build workflow" {
+		t.Errorf("unexpected description: %q", build.Description())
+	}
+	stages := build.Stages()
+	if len(stages) != 2 {
+		t.Fatalf("expected 2 stages, got %d", len(stages))
+	}
+	if stages[1].Name() != "generate" || !stages[1].Parallel() {
+		t.Errorf("unexpected stage data: %+v", stages[1])
+	}
+}
+
+func TestWorkflowStagesFromAny(t *testing.T) {
+	t.Run("workflow stage slice returns copy", func(t *testing.T) {
+		input := []WorkflowStageConfig{{name: "build", targets: []string{"go"}}}
+		stages := workflowStagesFromAny(input)
+		if len(stages) != 1 || stages[0].name != "build" {
+			t.Fatalf("expected stage copy, got %#v", stages)
+		}
+		stages[0].name = "mutated"
+		if input[0].name == "mutated" {
+			t.Fatal("expected returned slice to be a copy")
+		}
+	})
+
+	t.Run("workflow stage maps ignore invalid entries", func(t *testing.T) {
+		input := []any{
+			map[string]any{"name": "build", "targets": []any{"go"}, "parallel": true, "condition": "on:ci"},
+			"not a map",
+			map[string]any{"unknown": "value"},
+			map[string]any{},
+		}
+
+		stages := workflowStagesFromAny(input)
+		if len(stages) != 1 {
+			t.Fatalf("expected 1 stage, got %d", len(stages))
+		}
+		if stages[0].name != "build" {
+			t.Fatalf("expected stage name build, got %q", stages[0].name)
+		}
+		if !stages[0].parallel {
+			t.Fatal("expected stage to be parallel")
+		}
+		if stages[0].condition != "on:ci" {
+			t.Fatalf("expected condition to be set, got %q", stages[0].condition)
+		}
+	})
+}
+
+func TestWorkflowsFromMap(t *testing.T) {
+	t.Run("ignores invalid workflow entries", func(t *testing.T) {
+		input := map[string]any{
+			"workflows": map[string]any{
+				"build": map[string]any{"description": "Build"},
+				"bad":   "not a map",
+			},
+		}
+
+		result := workflowsFromMap(input, WorkflowsSection{})
+		if result.Len() != 1 {
+			t.Fatalf("expected 1 workflow, got %d", result.Len())
+		}
+		if _, ok := result.Get("build"); !ok {
+			t.Fatal("expected build workflow to be present")
+		}
+	})
+}
+
+func TestFromMapWithDecorations(t *testing.T) {
+	m := map[string]any{
+		"project": map[string]any{
+			"name":             "My.Package",
+			"source_directory": "src",
+			"exposed_modules":  []any{"Foo", "Bar"},
+			"decorations": map[string]any{
+				"myDecoration": map[string]any{
+					"display_name":     "My Amazing Decoration",
+					"ir":               "decorations/my/morphir-ir.json",
+					"entry_point":      "My.Amazing.Decoration:Foo:Shape",
+					"storage_location": "my-decoration-values.json",
+				},
+				"anotherDec": map[string]any{
+					"display_name":     "Another Decoration",
+					"ir":               "decorations/another/morphir-ir.json",
+					"entry_point":      "Another:Module:Type",
+					"storage_location": "another-values.json",
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+
+	decorations := cfg.Project().Decorations()
+	if len(decorations) != 2 {
+		t.Fatalf("expected 2 decorations, got %d", len(decorations))
+	}
+
+	dec1, ok := decorations["myDecoration"]
+	if !ok {
+		t.Fatal("expected myDecoration to be found")
+	}
+	if dec1.DisplayName() != "My Amazing Decoration" {
+		t.Errorf("DisplayName: want 'My Amazing Decoration', got %q", dec1.DisplayName())
+	}
+	if dec1.IR() != "decorations/my/morphir-ir.json" {
+		t.Errorf("IR: want 'decorations/my/morphir-ir.json', got %q", dec1.IR())
+	}
+	if dec1.EntryPoint() != "My.Amazing.Decoration:Foo:Shape" {
+		t.Errorf("EntryPoint: want 'My.Amazing.Decoration:Foo:Shape', got %q", dec1.EntryPoint())
+	}
+	if dec1.StorageLocation() != "my-decoration-values.json" {
+		t.Errorf("StorageLocation: want 'my-decoration-values.json', got %q", dec1.StorageLocation())
+	}
+
+	dec2, ok := decorations["anotherDec"]
+	if !ok {
+		t.Fatal("expected anotherDec to be found")
+	}
+	if dec2.DisplayName() != "Another Decoration" {
+		t.Errorf("DisplayName: want 'Another Decoration', got %q", dec2.DisplayName())
+	}
+}
+
+func TestFromMapWithDecorationsEmpty(t *testing.T) {
+	m := map[string]any{
+		"project": map[string]any{
+			"name":             "My.Package",
+			"source_directory": "src",
+		},
+	}
+
+	cfg := FromMap(m)
+
+	decorations := cfg.Project().Decorations()
+	if decorations != nil {
+		t.Errorf("expected nil decorations when not specified, got %v", decorations)
+	}
+}
+
+func TestFromMapDecorationsDefensiveCopy(t *testing.T) {
+	m := map[string]any{
+		"project": map[string]any{
+			"name":             "My.Package",
+			"source_directory": "src",
+			"decorations": map[string]any{
+				"testDec": map[string]any{
+					"display_name":     "Test",
+					"ir":               "test.json",
+					"entry_point":      "Test:Mod:Type",
+					"storage_location": "test-values.json",
+				},
+			},
+		},
+	}
+
+	cfg := FromMap(m)
+
+	decorations := cfg.Project().Decorations()
+	decorations["newKey"] = DecorationConfig{displayName: "New"}
+
+	// Verify original was not modified
+	decorationsAgain := cfg.Project().Decorations()
+	if len(decorationsAgain) != 1 {
+		t.Errorf("expected decorations to be immutable, got %d entries", len(decorationsAgain))
+	}
+	if _, ok := decorationsAgain["newKey"]; ok {
+		t.Error("expected newKey to not exist in original")
+	}
+}
+
+func TestLoadDecorationsFromTOMLFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := tmpDir + "/morphir.toml"
+	configContent := `
+[project]
+name = "My.Package"
+source_directory = "src"
+exposed_modules = ["Foo", "Bar"]
+
+[project.decorations.myDecoration]
+display_name = "My Amazing Decoration"
+ir = "decorations/my/morphir-ir.json"
+entry_point = "My.Amazing.Decoration:Foo:Shape"
+storage_location = "my-decoration-values.json"
+`
+	if err := writeFile(configPath, configContent); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	cfg, err := Load(
+		WithWorkDir(tmpDir),
+		WithoutSystem(),
+		WithoutGlobal(),
+		WithoutEnv(),
+	)
+	if err != nil {
+		t.Fatalf("Load: unexpected error: %v", err)
+	}
+
+	if cfg.Project().Name() != "My.Package" {
+		t.Errorf("Project.Name: want 'My.Package', got %q", cfg.Project().Name())
+	}
+
+	decorations := cfg.Project().Decorations()
+	if len(decorations) != 1 {
+		t.Fatalf("expected 1 decoration, got %d", len(decorations))
+	}
+
+	dec, ok := decorations["myDecoration"]
+	if !ok {
+		t.Fatal("expected myDecoration to be found")
+	}
+	if dec.DisplayName() != "My Amazing Decoration" {
+		t.Errorf("DisplayName: want 'My Amazing Decoration', got %q", dec.DisplayName())
+	}
+	if dec.IR() != "decorations/my/morphir-ir.json" {
+		t.Errorf("IR: want 'decorations/my/morphir-ir.json', got %q", dec.IR())
+	}
+	if dec.EntryPoint() != "My.Amazing.Decoration:Foo:Shape" {
+		t.Errorf("EntryPoint: want 'My.Amazing.Decoration:Foo:Shape', got %q", dec.EntryPoint())
+	}
+	if dec.StorageLocation() != "my-decoration-values.json" {
+		t.Errorf("StorageLocation: want 'my-decoration-values.json', got %q", dec.StorageLocation())
+	}
+}
+
+func TestLoadWithTasksFromFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := tmpDir + "/morphir.toml"
+	configContent := `
+[tasks.compile]
+kind = "intrinsic"
+action = "morphir.pipeline.compile"
+depends_on = ["setup"]
+inputs = ["workspace:/src/**/*.elm"]
+outputs = ["workspace:/build/**"]
+
+[tasks.compile.params]
+profile = "dev"
+
+[tasks.compile.env]
+GOFLAGS = "-mod=mod"
+
+[tasks.compile.mounts]
+workspace = "rw"
+config = "ro"
+
+[tasks.codegen]
+kind = "command"
+cmd = ["morphir", "gen", "--target", "Scala"]
+pre = ["compile"]
+post = ["test"]
+`
+	if err := writeFile(configPath, configContent); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	cfg, err := Load(
+		WithWorkDir(tmpDir),
+		WithoutSystem(),
+		WithoutGlobal(),
+		WithoutEnv(),
+	)
+	if err != nil {
+		t.Fatalf("Load: unexpected error: %v", err)
+	}
+
+	tasks := cfg.Tasks()
+	if tasks.Len() != 2 {
+		t.Fatalf("expected 2 tasks, got %d", tasks.Len())
+	}
+
+	// Verify compile task (intrinsic)
+	compile, ok := tasks.Get("compile")
+	if !ok {
+		t.Fatal("expected 'compile' task to exist")
+	}
+	compileIntrinsic, ok := compile.(IntrinsicTask)
+	if !ok {
+		t.Fatalf("compile: want IntrinsicTask, got %T", compile)
+	}
+	if compileIntrinsic.Action() != "morphir.pipeline.compile" {
+		t.Errorf("compile.Action: want morphir.pipeline.compile, got %q", compileIntrinsic.Action())
+	}
+	if params := compile.Params(); params["profile"] != "dev" {
+		t.Errorf("compile.Params: want profile=dev, got %v", params)
+	}
+	if env := compile.Env(); env["GOFLAGS"] != "-mod=mod" {
+		t.Errorf("compile.Env: want GOFLAGS=-mod=mod, got %v", env)
+	}
+	if mounts := compile.Mounts(); mounts["workspace"] != "rw" {
+		t.Errorf("compile.Mounts: want workspace=rw, got %v", mounts)
+	}
+
+	// Verify codegen task (command)
+	codegen, ok := tasks.Get("codegen")
+	if !ok {
+		t.Fatal("expected 'codegen' task to exist")
+	}
+	codegenCmd, ok := codegen.(CommandTask)
+	if !ok {
+		t.Fatalf("codegen: want CommandTask, got %T", codegen)
+	}
+	cmd := codegenCmd.Cmd()
+	if len(cmd) < 1 || cmd[0] != "morphir" {
+		t.Errorf("codegen.Cmd: want [morphir gen --target Scala], got %v", cmd)
+	}
+	if pre := codegen.Pre(); len(pre) != 1 || pre[0] != "compile" {
+		t.Errorf("codegen.Pre: want [compile], got %v", pre)
+	}
+	if post := codegen.Post(); len(post) != 1 || post[0] != "test" {
+		t.Errorf("codegen.Post: want [test], got %v", post)
+	}
+}
+
 // Helper functions for tests
 func writeFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0644)

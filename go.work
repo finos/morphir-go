@@ -1,11 +1,21 @@
 go 1.25.5
 
 use (
-	./cmd/morphir
-	./pkg/config
-	./pkg/models
-	./pkg/pipeline
-	./pkg/sdk
-	./pkg/tooling
-	./tests/bdd
+./cmd/morphir
+./pkg/bindings/golang
+./pkg/bindings/morphir-elm
+./pkg/bindings/typemap
+./pkg/bindings/wit
+./pkg/config
+./pkg/docling-doc
+./pkg/logging
+./pkg/models
+./pkg/nbformat
+./pkg/pipeline
+./pkg/sdk
+./pkg/task
+./pkg/toolchain
+./pkg/tooling
+./pkg/vfs
+./tests/bdd
 )

@@ -23,11 +23,11 @@ jobs:
           go-version: '1.25.5'
           cache: true
 
-      - name: Install just
-        uses: extractions/setup-just@v3
+      - name: Install mise
+        uses: jdx/mise-action@v3
 
       - name: Check formatting
-        run: just fmt-check
+        run: mise run fmt-check
 
   lint:
     name: Lint
@@ -42,17 +42,11 @@ jobs:
           go-version: '1.25.5'
           cache: true
 
-      - name: Install just
-        uses: extractions/setup-just@v3
-
-      - name: Install golangci-lint from source
-        run: |
-          # Build golangci-lint from source to support Go 1.25.5
-          # Pre-built binaries don't support Go 1.25 yet
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - name: Install mise
+        uses: jdx/mise-action@v3
 
       - name: Run linters
-        run: just lint
+        run: mise run lint
 
   test:
     name: Test
@@ -70,11 +64,11 @@ jobs:
           go-version: '1.25.5'
           cache: true
 
-      - name: Install just
-        uses: extractions/setup-just@v3
+      - name: Install mise
+        uses: jdx/mise-action@v3
 
       - name: Run tests
-        run: just test
+        run: mise run test
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
@@ -105,14 +99,14 @@ jobs:
           go-version: '1.25.5'
           cache: true
 
-      - name: Install just
-        uses: extractions/setup-just@v3
+      - name: Install mise
+        uses: jdx/mise-action@v3
 
       - name: Build binary (cross-platform)
         env:
           GOOS: ${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}
           GOARCH: ${{ matrix.arch }}
-        run: just build
+        run: mise run build
 
       - name: Test binary execution
         if: matrix.arch == 'amd64'
@@ -132,8 +126,8 @@ jobs:
           go-version: '1.25.5'
           cache: true
 
-      - name: Install just
-        uses: extractions/setup-just@v3
+      - name: Install mise
+        uses: jdx/mise-action@v3
 
       - name: Verify modules build
-        run: just verify
+        run: mise run verify

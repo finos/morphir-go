@@ -67,3 +67,21 @@ require (
 	golang.org/x/text v0.24.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace (
+github.com/finos/morphir-go/pkg/bindings/golang => ../../pkg/bindings/golang
+github.com/finos/morphir-go/pkg/bindings/morphir-elm => ../../pkg/bindings/morphir-elm
+github.com/finos/morphir-go/pkg/bindings/typemap => ../../pkg/bindings/typemap
+github.com/finos/morphir-go/pkg/bindings/wit => ../../pkg/bindings/wit
+github.com/finos/morphir-go/pkg/config => ../../pkg/config
+github.com/finos/morphir-go/pkg/docling-doc => ../../pkg/docling-doc
+github.com/finos/morphir-go/pkg/logging => ../../pkg/logging
+github.com/finos/morphir-go/pkg/models => ../../pkg/models
+github.com/finos/morphir-go/pkg/nbformat => ../../pkg/nbformat
+github.com/finos/morphir-go/pkg/pipeline => ../../pkg/pipeline
+github.com/finos/morphir-go/pkg/sdk => ../../pkg/sdk
+github.com/finos/morphir-go/pkg/task => ../../pkg/task
+github.com/finos/morphir-go/pkg/toolchain => ../../pkg/toolchain
+github.com/finos/morphir-go/pkg/tooling => ../../pkg/tooling
+github.com/finos/morphir-go/pkg/vfs => ../../pkg/vfs
+)

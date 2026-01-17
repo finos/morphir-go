@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 // LoadDecorationValues loads decoration values from a JSON file.

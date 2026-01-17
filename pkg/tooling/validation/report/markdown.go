@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/finos/morphir/pkg/tooling/validation"
+	"github.com/finos/morphir-go/pkg/tooling/validation"
 )
 
 // MarkdownGenerator generates validation reports in Markdown format.
@@ -272,7 +272,7 @@ func (g *MarkdownGenerator) writeRecommendations(sb *strings.Builder, result *va
 	sb.WriteString("3. **Report Compatibility Issues**\n")
 	sb.WriteString("   - If the IR was generated correctly but fails validation, this may indicate\n")
 	sb.WriteString("     a schema compatibility issue between morphir-elm and morphir-go\n")
-	sb.WriteString("   - Please report issues at: https://github.com/finos/morphir/issues\n\n")
+	sb.WriteString("   - Please report issues at: https://github.com/finos/morphir-go/issues\n\n")
 }
 
 func (g *MarkdownGenerator) writeAppendix(sb *strings.Builder, codes usedCodes) {

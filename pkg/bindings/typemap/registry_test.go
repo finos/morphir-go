@@ -3,7 +3,7 @@ package typemap_test
 import (
 	"testing"
 
-	"github.com/finos/morphir/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
 )
 
 func TestParseMorphirTypeRef(t *testing.T) {

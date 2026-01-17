@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/finos/morphir/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // ConvertModuleToPackage converts a Morphir IR module to a Go package.

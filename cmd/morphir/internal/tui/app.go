@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/components"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/keymap"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/components"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/keymap"
 )
 
 // FocusPanel represents which panel currently has focus

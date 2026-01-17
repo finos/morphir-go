@@ -1,8 +1,8 @@
 package wit
 
 import (
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/bindings/wit/internal/emitter"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/internal/emitter"
 )
 
 // EmitPackage converts a domain.Package to WIT text format.

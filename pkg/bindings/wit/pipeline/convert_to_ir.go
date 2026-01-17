@@ -3,11 +3,11 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/finos/morphir/pkg/bindings/typemap"
-	"github.com/finos/morphir/pkg/bindings/wit"
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/models/ir"
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/wit"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // ConvertToIR converts a WIT domain.Package to a Morphir IR ModuleDefinition.

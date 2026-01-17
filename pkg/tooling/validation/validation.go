@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/finos/morphir/pkg/models/ir/schema"
+	"github.com/finos/morphir-go/pkg/models/ir/schema"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"sigs.k8s.io/yaml"
 )

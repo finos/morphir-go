@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
 	"go.bytecodealliance.org/wit"
 )
 

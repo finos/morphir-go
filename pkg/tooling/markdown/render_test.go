@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/finos/morphir/pkg/tooling/markdown"
+	"github.com/finos/morphir-go/pkg/tooling/markdown"
 )
 
 func TestDefaultRenderer(t *testing.T) {

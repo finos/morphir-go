@@ -7,11 +7,11 @@ package toolchain
 import (
 	"fmt"
 
-	"github.com/finos/morphir/pkg/bindings/golang/pipeline"
-	"github.com/finos/morphir/pkg/models/ir"
-	pipelinepkg "github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/toolchain"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/bindings/golang/pipeline"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	pipelinepkg "github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // GolangToolchain returns the Go toolchain definition for registration.

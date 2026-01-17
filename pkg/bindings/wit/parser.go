@@ -3,8 +3,8 @@ package wit
 import (
 	"os"
 
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/bindings/wit/internal/parser"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/internal/parser"
 )
 
 // ParseWITSource parses WIT source code using the pure Go parser.

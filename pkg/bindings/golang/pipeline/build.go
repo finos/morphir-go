@@ -3,7 +3,7 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // NewBuildStep creates the Go "build" step (full pipeline).

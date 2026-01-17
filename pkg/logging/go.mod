@@ -1,4 +1,4 @@
-module github.com/finos/morphir/pkg/logging
+module github.com/finos/morphir-go/pkg/logging
 
 go 1.25.5
 

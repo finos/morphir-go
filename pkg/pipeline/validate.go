@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // ValidateInput provides the input for the validation step.

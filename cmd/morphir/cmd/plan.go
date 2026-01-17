@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	golangtoolchain "github.com/finos/morphir/pkg/bindings/golang/toolchain"
-	morphirelmtoolchain "github.com/finos/morphir/pkg/bindings/morphir-elm/toolchain"
-	wittoolchain "github.com/finos/morphir/pkg/bindings/wit/toolchain"
-	"github.com/finos/morphir/pkg/config"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/toolchain"
-	"github.com/finos/morphir/pkg/vfs"
+	golangtoolchain "github.com/finos/morphir-go/pkg/bindings/golang/toolchain"
+	morphirelmtoolchain "github.com/finos/morphir-go/pkg/bindings/morphir-elm/toolchain"
+	wittoolchain "github.com/finos/morphir-go/pkg/bindings/wit/toolchain"
+	"github.com/finos/morphir-go/pkg/config"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/spf13/cobra"
 )
 

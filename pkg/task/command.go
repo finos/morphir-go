@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // CommandRunner executes external commands with environment and output handling.

@@ -1,8 +1,8 @@
 package task
 
 import (
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // TaskConfig is the sealed interface for task configurations.

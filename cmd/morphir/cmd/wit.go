@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	witpipeline "github.com/finos/morphir/pkg/bindings/wit/pipeline"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	witpipeline "github.com/finos/morphir-go/pkg/bindings/wit/pipeline"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 	"github.com/spf13/cobra"
 )
 

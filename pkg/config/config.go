@@ -16,7 +16,7 @@
 package config
 
 import (
-	"github.com/finos/morphir/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
 )
 
 // Config represents the complete, immutable configuration for Morphir tooling.

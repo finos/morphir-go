@@ -1,7 +1,7 @@
 package wit
 
 import (
-	"github.com/finos/morphir/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
 )
 
 // BindingName is the canonical name for the WIT binding.

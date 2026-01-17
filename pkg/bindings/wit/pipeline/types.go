@@ -1,9 +1,9 @@
 package pipeline
 
 import (
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/models/ir"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // SourceLocation represents a position in a WIT source file.

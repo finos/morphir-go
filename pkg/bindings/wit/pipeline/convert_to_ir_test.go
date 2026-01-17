@@ -3,9 +3,9 @@ package pipeline_test
 import (
 	"testing"
 
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
-	"github.com/finos/morphir/pkg/bindings/wit/pipeline"
-	corePipeline "github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/pipeline"
+	corePipeline "github.com/finos/morphir-go/pkg/pipeline"
 )
 
 func TestConvertToIR_PrimitiveTypes(t *testing.T) {

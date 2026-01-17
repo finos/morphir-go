@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
-	jsoncodec "github.com/finos/morphir/pkg/models/ir/codec/json"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	jsoncodec "github.com/finos/morphir-go/pkg/models/ir/codec/json"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 // LoadDecorationIR loads a decoration schema IR file from the given path.

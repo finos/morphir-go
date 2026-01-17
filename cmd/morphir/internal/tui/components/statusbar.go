@@ -6,8 +6,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/keymap"
-	"github.com/finos/morphir/cmd/morphir/internal/tui/styles"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/keymap"
+	"github.com/finos/morphir-go/cmd/morphir/internal/tui/styles"
 )
 
 // StatusBar displays status information and keybinding hints at the bottom of the screen

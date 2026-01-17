@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
 )
 
 // ValidateRoundTrip compares two WIT packages for semantic equivalence.

@@ -3,7 +3,7 @@ package decorations
 import (
 	"encoding/json"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // DecorationValues represents a collection of decoration values keyed by NodePath strings.

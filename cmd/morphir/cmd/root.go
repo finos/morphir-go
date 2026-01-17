@@ -5,9 +5,9 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/finos/morphir/cmd/morphir/internal/ui"
-	"github.com/finos/morphir/pkg/config"
-	"github.com/finos/morphir/pkg/logging"
+	"github.com/finos/morphir-go/cmd/morphir/internal/ui"
+	"github.com/finos/morphir-go/pkg/config"
+	"github.com/finos/morphir-go/pkg/logging"
 	"github.com/spf13/cobra"
 )
 

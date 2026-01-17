@@ -3,7 +3,7 @@ package toolchain
 import (
 	"testing"
 
-	"github.com/finos/morphir/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/toolchain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

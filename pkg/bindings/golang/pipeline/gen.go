@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/finos/morphir/pkg/bindings/golang/domain"
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/bindings/golang/domain"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // NewGenStep creates the Go "gen" step (Morphir IR → Go code).

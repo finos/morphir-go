@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/finos/morphir/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/models/ir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

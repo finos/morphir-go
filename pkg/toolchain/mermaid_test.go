@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/finos/morphir/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/toolchain"
 )
 
 func TestPlanToMermaid_EmptyPlan(t *testing.T) {

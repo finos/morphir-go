@@ -3,7 +3,7 @@ package toolchain
 import (
 	"time"
 
-	"github.com/finos/morphir/pkg/config"
+	"github.com/finos/morphir-go/pkg/config"
 )
 
 // LoadWorkflowsFromConfig converts workflow configurations to toolchain workflows.

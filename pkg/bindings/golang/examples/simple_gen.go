@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/finos/morphir/pkg/bindings/golang/domain"
-	"github.com/finos/morphir/pkg/bindings/golang/pipeline"
-	"github.com/finos/morphir/pkg/models/ir"
-	pipelinepkg "github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/bindings/golang/domain"
+	"github.com/finos/morphir-go/pkg/bindings/golang/pipeline"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	pipelinepkg "github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // This example demonstrates the IR to Go code generation.

@@ -3,7 +3,7 @@ package adapter
 import (
 	"testing"
 
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.bytecodealliance.org/wit"

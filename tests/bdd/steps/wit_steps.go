@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/cucumber/godog"
-	morphirwit "github.com/finos/morphir/pkg/bindings/wit"
-	"github.com/finos/morphir/pkg/bindings/wit/domain"
+	morphirwit "github.com/finos/morphir-go/pkg/bindings/wit"
+	"github.com/finos/morphir-go/pkg/bindings/wit/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

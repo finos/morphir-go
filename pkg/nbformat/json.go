@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/finos/morphir/pkg/nbformat/internal/json"
+	"github.com/finos/morphir-go/pkg/nbformat/internal/json"
 )
 
 // ReadOptions configures notebook reading.

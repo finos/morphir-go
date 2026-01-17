@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/finos/morphir/pkg/tooling/decorations"
-	"github.com/finos/morphir/pkg/tooling/workspace"
+	"github.com/finos/morphir-go/pkg/tooling/decorations"
+	"github.com/finos/morphir-go/pkg/tooling/workspace"
 	"github.com/spf13/cobra"
 )
 

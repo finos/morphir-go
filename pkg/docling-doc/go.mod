@@ -1,4 +1,4 @@
-module github.com/finos/morphir/pkg/docling-doc
+module github.com/finos/morphir-go/pkg/docling-doc
 
 go 1.25.5
 

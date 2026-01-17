@@ -1,9 +1,9 @@
 package pipeline
 
 import (
-	"github.com/finos/morphir/pkg/models/ir"
-	"github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/vfs"
+	"github.com/finos/morphir-go/pkg/models/ir"
+	"github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/vfs"
 )
 
 // SourceLocation represents a position in a Go source file.

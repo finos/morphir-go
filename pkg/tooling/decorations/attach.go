@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/finos/morphir/pkg/config"
-	ir "github.com/finos/morphir/pkg/models/ir"
-	decorationmodels "github.com/finos/morphir/pkg/models/ir/decorations"
+	"github.com/finos/morphir-go/pkg/config"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
+	decorationmodels "github.com/finos/morphir-go/pkg/models/ir/decorations"
 )
 
 // AttachedDistribution represents a Distribution with attached decorations.

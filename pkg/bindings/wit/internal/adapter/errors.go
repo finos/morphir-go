@@ -3,7 +3,7 @@ package adapter
 import (
 	"fmt"
 
-	"github.com/finos/morphir/pkg/bindings/typemap"
+	"github.com/finos/morphir-go/pkg/bindings/typemap"
 	"go.bytecodealliance.org/wit"
 )
 

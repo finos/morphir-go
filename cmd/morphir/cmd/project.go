@@ -8,7 +8,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/table"
-	"github.com/finos/morphir/pkg/tooling/workspace"
+	"github.com/finos/morphir-go/pkg/tooling/workspace"
 	"github.com/spf13/cobra"
 )
 

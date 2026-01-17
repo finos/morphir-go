@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 // EncodeFQName encodes a Morphir ir.FQName to JSON according to the provided options.

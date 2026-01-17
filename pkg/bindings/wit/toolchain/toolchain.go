@@ -5,9 +5,9 @@
 package toolchain
 
 import (
-	"github.com/finos/morphir/pkg/bindings/wit/pipeline"
-	pipelinepkg "github.com/finos/morphir/pkg/pipeline"
-	"github.com/finos/morphir/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/bindings/wit/pipeline"
+	pipelinepkg "github.com/finos/morphir-go/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/toolchain"
 )
 
 // WITToolchain returns the WIT toolchain definition for registration.

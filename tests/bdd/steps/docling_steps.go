@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/cucumber/godog"
-	docling "github.com/finos/morphir/pkg/docling-doc"
+	docling "github.com/finos/morphir-go/pkg/docling-doc"
 )
 
 // DoclingTestContext holds state for Docling BDD test scenarios.

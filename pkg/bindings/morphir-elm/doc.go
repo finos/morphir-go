@@ -16,8 +16,8 @@
 // Register the morphir-elm toolchain with a registry:
 //
 //	import (
-//	    "github.com/finos/morphir/pkg/toolchain"
-//	    morphirelm "github.com/finos/morphir/pkg/bindings/morphir-elm/toolchain"
+//	    "github.com/finos/morphir-go/pkg/toolchain"
+//	    morphirelm "github.com/finos/morphir-go/pkg/bindings/morphir-elm/toolchain"
 //	)
 //
 //	registry := toolchain.NewRegistry()

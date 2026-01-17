@@ -3,7 +3,7 @@ package json
 import (
 	"testing"
 
-	ir "github.com/finos/morphir/pkg/models/ir"
+	ir "github.com/finos/morphir-go/pkg/models/ir"
 )
 
 const expectedError = "expected error"

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/finos/morphir/pkg/config"
-	"github.com/finos/morphir/pkg/toolchain"
+	"github.com/finos/morphir-go/pkg/config"
+	"github.com/finos/morphir-go/pkg/toolchain"
 )
 
 func TestLoadWorkflowsFromConfig(t *testing.T) {

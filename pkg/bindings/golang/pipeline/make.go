@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"github.com/finos/morphir/pkg/pipeline"
+	"github.com/finos/morphir-go/pkg/pipeline"
 )
 
 // NewMakeStep creates the Go "make" step (Go source → Morphir IR).

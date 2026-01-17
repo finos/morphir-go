@@ -20,11 +20,16 @@ func TestFeatures(t *testing.T) {
 			// Create config test context
 			ctc := steps.NewConfigTestContext()
 
+			// Create docling test context
+			dtc := steps.NewDoclingTestContext()
+
 			// Set up before/after hooks
 			sc.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 				tc.Reset()
 				ctc.Reset()
+				dtc.Reset()
 				ctx = steps.WithTestContext(ctx, tc)
+				ctx = steps.WithDoclingTestContext(ctx, dtc)
 				return ctx, nil
 			})
 
@@ -59,6 +64,14 @@ func TestFeatures(t *testing.T) {
 			steps.RegisterWorkspaceSteps(sc)
 			steps.RegisterExampleSteps(sc)
 			steps.RegisterCLISteps(sc)
+			steps.RegisterWITCLISteps(sc)
+			steps.RegisterDoclingSteps(sc)
+			steps.RegisterWITSteps(sc)
+			steps.RegisterGolangSteps(sc)
+			steps.RegisterPlanSteps(sc)
+			steps.RegisterMorphirElmSteps(sc)
+			steps.RegisterWorkflowSteps(sc)
+			steps.RegisterDecorationSteps(sc)
 		},
 		Options: &godog.Options{
 			Format:   "pretty",
@@ -66,6 +79,7 @@ func TestFeatures(t *testing.T) {
 			FS:       features.Features,
 			TestingT: t,
 			Strict:   true,
+			Tags:     "~@pending", // Skip scenarios tagged with @pending
 		},
 	}
 

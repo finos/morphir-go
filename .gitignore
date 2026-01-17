@@ -1,4 +1,56 @@
-.DS_Store
+# Node, Bun, and Deno Related
+package-lock.json
+node_modules/
+
+# IDE Related
+.idea/
+.fake
+.ionide
+.vscode/
+
+
+# Elm related
+elm-stuff/
+
+# Zig related
+zig-cache/
+zig-out/
+
+# Build Artifacts
+.out/
+out/
+dist/
+target/
+bin/
+
+# Scala
+.scala-build/
+.metals/
+.bloop/
+.bsp/
+# moon
+.moon/cache
+.moon/docker
+
+# Go Related
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# Test coverage and results
+coverage/
+coverage.out
+test-results/
+
+# Go workspace files
+# Uncomment if you don't want to track go.work
+go.work
+go.work.sum
 
 # Docusaurus generated folders
 website/translated_docs/
@@ -6,54 +58,11 @@ website/build/
 website/i18n/
 website/.docusaurus/
 
-# Yarn build
-website/node_modules/
-
-# Generated docs
-docs/contributing.md
-
-# We use YARN
-website/package-lock.json
-
-# Go build artifacts
-bin/
-dist/
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Go test files
-*.test
-*.out
-
-# Go workspace files (optional - some teams commit go.work, some don't)
-# Uncomment if you don't want to track go.work
-# go.work
-# go.work.sum
-
-# Go vendor directory
-vendor/
-
-# Go module cache (optional)
-# Uncomment if you want to ignore module cache
-# .go/
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
 # Local planning prompt files
 *.prompt.md
 
 # bv (beads viewer) local config and caches
 .bv/
 
-# Node.js (husky)
-node_modules/
-package-lock.json
+# NOTE: cmd/morphir/cmd/CHANGELOG.md is committed and kept in sync
+# with root CHANGELOG.md during releases for go:embed to work with go install

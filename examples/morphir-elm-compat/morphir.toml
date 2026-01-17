@@ -1,0 +1,6 @@
+[workflows.build]
+description = "Build with direct task reference"
+
+[[workflows.build.stages]]
+name = "compile"
+targets = ["morphir-elm/make"]

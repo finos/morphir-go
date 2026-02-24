@@ -5,7 +5,7 @@
 [tools]
 go = "1.26.0"
 bun = "latest"
-node = "20"
+node = "24"
 golangci-lint = "latest"
 
 # Environment variables

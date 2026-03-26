@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/charmbracelet/bubbles v0.21.0
+	github.com/charmbracelet/bubbles/v2 v2.1.0
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.3

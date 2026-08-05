@@ -7,7 +7,7 @@ experimental = true
 [tools]
 # Core tools
 go = "1.26.0"
-python = "3.14.3"
+python = "3.14.7"
 
 # JavaScript runtimes and package managers (for toolchain backend tests)
 node = "24.14.0" # Provides npm and npx

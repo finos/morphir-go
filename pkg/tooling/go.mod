@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/finos/morphir-go/pkg/config v0.4.0-alpha.4
 	github.com/finos/morphir-go/pkg/models v0.4.0-alpha.4
-	github.com/mattn/go-isatty v0.0.20
+	github.com/mattn/go-isatty v0.0.24
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
 	sigs.k8s.io/yaml v1.6.0
 )

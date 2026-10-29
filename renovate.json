@@ -6,7 +6,8 @@
     ":dependencyDashboard"
   ],
   "schedule": [
-    "before 6am on monday"
+    "before 6am on monday",
+    "before 6am on thursday"
   ],
   "timezone": "America/New_York",
   "prConcurrentLimit": 5,

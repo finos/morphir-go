@@ -1,6 +1,6 @@
 module github.com/finos/morphir-go/pkg/task
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/finos/morphir-go/pkg/pipeline v0.4.0-alpha.4

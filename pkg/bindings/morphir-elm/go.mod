@@ -1,6 +1,6 @@
 module github.com/finos/morphir-go/pkg/bindings/morphir-elm
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/finos/morphir-go/pkg/toolchain v0.4.0-alpha.4

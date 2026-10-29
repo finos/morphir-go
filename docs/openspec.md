@@ -8,6 +8,9 @@ recorded schema. Follow this repository's contribution and approval rules.
 
 ## Bootstrap
 
+Tool versions are pinned in `.config/mise/config.toml`; `.mise.toml` defines
+the environment and OpenSpec tasks.
+
 Install [mise](https://mise.jdx.dev/), then run `mise install`. OpenSpec is pinned
 to 1.14.3. MoonBit 0.10.15+943464bfa runs the shared checker; it does not change
 the project's implementation language. Existing project runtime pins remain in

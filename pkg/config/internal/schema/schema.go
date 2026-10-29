@@ -156,9 +156,9 @@ func (r *Result) String() string {
 	warnings := r.Warnings()
 
 	if len(errors) > 0 {
-		b.WriteString(fmt.Sprintf("%d error(s):\n", len(errors)))
+		fmt.Fprintf(&b, "%d error(s):\n", len(errors))
 		for _, err := range errors {
-			b.WriteString(fmt.Sprintf("  - %s\n", err.Error()))
+			fmt.Fprintf(&b, "  - %s\n", err.Error())
 		}
 	}
 
@@ -166,9 +166,9 @@ func (r *Result) String() string {
 		if len(errors) > 0 {
 			b.WriteString("\n")
 		}
-		b.WriteString(fmt.Sprintf("%d warning(s):\n", len(warnings)))
+		fmt.Fprintf(&b, "%d warning(s):\n", len(warnings))
 		for _, warn := range warnings {
-			b.WriteString(fmt.Sprintf("  - %s\n", warn.Error()))
+			fmt.Fprintf(&b, "  - %s\n", warn.Error())
 		}
 	}
 

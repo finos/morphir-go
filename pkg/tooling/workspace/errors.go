@@ -60,10 +60,10 @@ func (e *NotFoundError) Is(target error) bool {
 // Detail returns a detailed message about the search that was performed.
 func (e *NotFoundError) Detail() string {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("No Morphir workspace found.\n\nSearched %d directories:\n",
-		len(e.SearchedDirs)))
+	fmt.Fprintf(&b, "No Morphir workspace found.\n\nSearched %d directories:\n",
+		len(e.SearchedDirs))
 	for _, dir := range e.SearchedDirs {
-		b.WriteString(fmt.Sprintf("  - %s\n", dir))
+		fmt.Fprintf(&b, "  - %s\n", dir)
 	}
 	b.WriteString("\nTo create a workspace, run: morphir init\n")
 	return b.String()

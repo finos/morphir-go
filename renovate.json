@@ -1,6 +1,124 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "schedule": [
+    "before 6am on monday",
+    "before 6am on thursday"
+  ],
+  "timezone": "America/New_York",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/testdata/**",
+    "examples/**"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
+  "packageRules": [
+    {
+      "description": "The go directive in go.mod/go.work is the minimum supported Go version for consumers; raise it deliberately, not on every toolchain release",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "golang",
+        "toolchain"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Workspace modules are versioned and released together by the release process",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchPackageNames": [
+        "github.com/finos/morphir-go/**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Batch Go module updates; Renovate still splits major vs non-major by default",
+      "matchManagers": [
+        "gomod"
+      ],
+      "groupName": "Go modules"
+    },
+    {
+      "description": "Override: Charmbracelet UI libraries land together (majors included). Must follow the broad Go modules rule so this groupName wins.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchPackageNames": [
+        "github.com/charmbracelet/**"
+      ],
+      "groupName": "charmbracelet",
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Update the Go toolchain and golangci-lint together; golangci-lint must be built with a Go version at least as new as the code it lints",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "go",
+        "golangci-lint"
+      ],
+      "groupName": "Go toolchain"
+    },
+    {
+      "description": "Group mise-managed JS/Python runtimes and package managers (majors included)",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "bun",
+        "deno",
+        "node",
+        "pnpm",
+        "yarn",
+        "python"
+      ],
+      "groupName": "mise JS and Python tooling",
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Group all GitHub Actions and the mise version pinned in workflows (majors included)",
+      "matchManagers": [
+        "github-actions",
+        "custom.regex"
+      ],
+      "groupName": "GitHub Actions",
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Group npm dependencies (husky and related)",
+      "matchManagers": [
+        "npm"
+      ],
+      "groupName": "npm dependencies",
+      "separateMajorMinor": false
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "mise version pinned in jdx/mise-action steps",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "uses: jdx/mise-action@\\S+\\s+with:\\s+version:\\s*(?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "jdx/mise",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    }
   ]
 }

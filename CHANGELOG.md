@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Shared OpenSpec html-design workflow, generated core skills, pinned tooling and snapshot validation.
+- **Morphir.SDK.Maybe runtime**: `pkg/sdk/maybe` provides a generic, immutable `Maybe[T]` with `Just`, `Nothing`, `Map`, `Map2`–`Map5`, `AndThen`, `WithDefault` and `HasValue`
 - **Layered Configuration System**: Complete configuration management with multiple sources
   - TOML file support (`morphir.toml`, `.morphir/morphir.toml`)
   - XDG-compliant path resolution for global config (`~/.config/morphir/`)
@@ -44,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `morphir workspace init` now fully functional (was stubbed)
+- Minimum supported Go version raised from 1.25.5 to 1.26; development toolchain is Go 1.27.3
+- golangci-lint upgraded to 2.15.0 and installed by mise in CI instead of built from source
+- Renovate groups Go with golangci-lint, runs `go mod tidy` on updates, and tracks the mise version used in CI
+- Renovate batches updates into fewer PRs (Go modules, Charmbracelet, mise JS/Python tooling, GitHub Actions, npm) with a Monday/Thursday schedule and dependency dashboard
 
 ## [0.1.0] - 2026-01-01
 

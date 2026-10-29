@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Shared OpenSpec html-design workflow, generated core skills, pinned tooling and snapshot validation.
+
 ## [0.4.0-alpha.4] - 2026-01-13
 
 ### Added

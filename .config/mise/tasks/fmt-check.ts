@@ -19,7 +19,11 @@ async function main() {
 
   console.log("Checking code formatting...");
 
-  const result = await $`gofmt -s -l .`.text();
+  // Ignore dependency/build caches while including new, unignored Go sources.
+  const files = (await $`git ls-files -z --cached --others --exclude-standard -- '*.go'`.text())
+    .split("\0")
+    .filter((file) => file && existsSync(file));
+  const result = files.length ? await $`gofmt -s -l ${files}`.text() : "";
   const unformatted = result.trim();
 
   if (unformatted) {

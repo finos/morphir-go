@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Shared OpenSpec html-design workflow, generated core skills, pinned tooling and snapshot validation.
 - **Layered Configuration System**: Complete configuration management with multiple sources
   - TOML file support (`morphir.toml`, `.morphir/morphir.toml`)
   - XDG-compliant path resolution for global config (`~/.config/morphir/`)

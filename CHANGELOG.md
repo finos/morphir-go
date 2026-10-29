@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minimum supported Go version raised from 1.25.5 to 1.26; development toolchain is Go 1.27.3
 - golangci-lint upgraded to 2.15.0 and installed by mise in CI instead of built from source
 - Renovate groups Go with golangci-lint, runs `go mod tidy` on updates, and tracks the mise version used in CI
+- Renovate batches updates into fewer PRs (Go modules, Charmbracelet, mise JS/Python tooling, GitHub Actions, npm) with a Monday/Thursday schedule and dependency dashboard
 
 ## [0.1.0] - 2026-01-01
 

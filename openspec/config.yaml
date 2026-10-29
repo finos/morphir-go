@@ -1,0 +1,10 @@
+# Copyright 2026 FINOS
+# SPDX-License-Identifier: Apache-2.0
+
+schema: html-design
+githubCopilot:
+  cloudAgent: false
+context: |
+  Morphir Go is a functional Go monorepo using go.work, Cobra and mise.
+  Keep domain models immutable, use typed errors, and preserve JSON stdout and stderr diagnostics.
+  Follow AGENTS.md for tests, cross-platform automation and Beads tracking; link the GitHub issue and follow CONTRIBUTING.md for PR review.

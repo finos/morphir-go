@@ -1,12 +1,8 @@
 # Morphir Go - Development Environment Configuration
 # See: https://mise.jdx.dev
 
-# Tool versions
-[tools]
-go = "1.26.0"
-bun = "latest"
-node = "24"
-golangci-lint = "latest"
+# Tool versions are pinned in .config/mise/config.toml.
+# Do not add [tools] here: this file takes precedence and would override those pins.
 
 # Environment variables
 [env]

@@ -1,6 +1,6 @@
 module github.com/finos/morphir-go/pkg/toolchain
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/finos/morphir-go/pkg/config v0.3.3

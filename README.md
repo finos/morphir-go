@@ -40,7 +40,7 @@ go install github.com/finos/morphir-go/cmd/morphir@latest
 ### Option 3: Build from Source
 
 **Prerequisites:**
-- **Go 1.25.5** or later ([download](https://golang.org/dl/))
+- **Go 1.26** or later ([download](https://golang.org/dl/))
 - **mise** - A dev tools manager for reproducible environments ([install](https://mise.jdx.dev/getting-started.html))
 - **PowerShell** (Windows only) - For running build scripts on Windows ([install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell))
 

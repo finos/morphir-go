@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       # The mise postinstall hook completes the MoonBit SDK (core and moonx).
       - name: Initialize the MoonBit package registry
@@ -37,12 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       - name: Set up Go workspace
         run: mise run workspace:setup
@@ -58,12 +58,12 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       # On Windows, use inline mise tasks (file-based tasks don't work on Windows)
       - name: Set up Go workspace (Windows)
@@ -100,14 +100,14 @@ jobs:
 
       - name: Publish test results
         if: always() && matrix.os != 'windows-latest'
-        uses: test-summary/action@v2.4
+        uses: test-summary/action@v2.6
         with:
           paths: "test-results/*.xml"
           show: "all"
 
       - name: Upload to Codecov
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.out
           fail_ci_if_error: false
@@ -126,12 +126,12 @@ jobs:
             arch: arm64
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       # On Windows, use inline mise tasks (file-based tasks don't work on Windows)
       - name: Set up Go workspace (Windows)
@@ -165,12 +165,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       - name: Set up Go workspace
         run: mise run workspace:setup
@@ -189,7 +189,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download coverage artifact
         uses: actions/download-artifact@v8
@@ -197,7 +197,7 @@ jobs:
           name: code-coverage
 
       - name: Post coverage comment
-        uses: fgrosse/go-coverage-report@v1.2.0
+        uses: fgrosse/go-coverage-report@v1.5.0
         continue-on-error: true  # Allow failure if baseline coverage doesn't exist yet
         with:
           coverage-artifact-name: "code-coverage"
@@ -209,12 +209,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       - name: Set up Go workspace
         run: mise run workspace:setup
@@ -231,12 +231,12 @@ jobs:
     if: github.event_name == 'pull_request' && (contains(github.event.pull_request.title, 'release') || contains(github.event.pull_request.labels.*.name, 'release'))
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install mise
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v5
         with:
-          version: 2026.10.23
+          version: 2026.11.3
 
       - name: Test cmd/morphir builds without go.work
         run: mise run test-external

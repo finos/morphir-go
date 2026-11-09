@@ -35,7 +35,7 @@ description = "Build morphir binary (Windows)"
 run = "bun .config/mise/tasks/build.ts"
 
 [tools."github:moonrockz/mission-control"]
-version = "0.1.0"
+version = "0.1.2"
 version_prefix = "tools-v"
 
 [tools."github:moonrockz/mission-control".platforms]

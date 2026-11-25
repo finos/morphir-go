@@ -12,10 +12,10 @@ Tool versions are pinned in `.config/mise/config.toml`; `.mise.toml` defines
 the environment and OpenSpec tasks.
 
 Install [mise](https://mise.jdx.dev/), then run `mise install`. OpenSpec is pinned
-to 1.14.3. The shared checker is the released `mission-control-tools` 0.1.0 binary
+to 2.2.0. The shared checker is the released `mission-control-tools` 0.1.3 binary
 from [Mission Control](https://github.com/moonrockz/mission-control/tree/main/apps/tools).
 mise installs it from the `github:moonrockz/mission-control` entry (release tag
-`tools-v0.1.0`) and checks each download against its GitHub asset digest and
+`tools-v0.1.3`) and checks each download against its GitHub asset digest and
 artifact attestation. A prebuilt binary is available for Linux x64/ARM64, macOS
 Apple Silicon/Intel and Windows x64. Windows on Arm runs the x64 build under
 emulation. No other toolchain is necessary.
@@ -39,9 +39,14 @@ mise exec -- openspec instructions design --change <change-name>
 
 No schema override is needed. The design instructions target `design.html`.
 Use the generated core skills to propose, explore, apply, update, sync specs and
-archive changes. Skills are checked in for portable/Codex agents, Claude,
-Copilot, Cursor, Grok, Gemini and OpenCode. `mise run openspec:setup` regenerates
-them using an isolated core profile without changing personal OpenSpec settings.
+archive changes. The `openspec` skill answers questions about OpenSpec and
+sends a request to the skill that does the work. The skills are checked in once,
+in `.agents/skills/`, which Codex, Copilot, Cursor, Gemini and OpenCode read.
+`.claude/skills/` and `.grok/skills/` hold links to them. On Windows, run
+`git config --global core.symlinks true` before you clone, or each link checks
+out as a small text file. `mise run openspec:setup` regenerates the skills in
+this repository using an isolated core profile without changing personal
+OpenSpec settings.
 
 Keep project-specific context and rules in `openspec/config.yaml` and AGENTS.md.
 Existing skills outside the generated OpenSpec set are preserved.
@@ -49,7 +54,7 @@ Existing skills outside the generated OpenSpec set are preserved.
 ## Update the shared bundle
 
 `openspec/extensions.lock.json` (format 2) records the tool that wrote it
-(`moonrockz/mission-control-tools` 0.1.0) and SHA-256 hashes for the seven
+(`moonrockz/mission-control-tools` 0.1.3) and SHA-256 hashes for the seven
 managed files. Git attributes preserve LF line endings so Windows checkouts keep
 those hashes. Keep the schema, templates, notices and license identical to
 Mission Control. Do not patch them locally. `mission-control-tools openspec check`

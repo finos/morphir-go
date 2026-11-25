@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `morphir workspace init` now fully functional (was stubbed)
+- OpenSpec moves from 1.14.3 to 2.2.0 and `mission-control-tools` from 0.1.0 to 0.1.3. The OpenSpec skills are checked in once in `.agents/skills/`, with links in `.claude/skills/` and `.grok/skills/`, and a new `openspec` router skill
 - Minimum supported Go version raised from 1.25.5 to 1.26; development toolchain is Go 1.27.3
 - golangci-lint upgraded to 2.15.0 and installed by mise in CI instead of built from source
 - Renovate groups Go with golangci-lint, runs `go mod tidy` on updates, and tracks the mise version used in CI
